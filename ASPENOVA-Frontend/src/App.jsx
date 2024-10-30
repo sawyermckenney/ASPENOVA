@@ -3,8 +3,7 @@ import HamburgerMenu from './componenets/hamburgerMenu'
 const App = () => {
   return (
     <div>
-      <HamburgerMenu />
-      
+      <HamburgerMenu/>
     </div>
   )
 }
