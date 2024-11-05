@@ -40,3 +40,8 @@
 .read-the-docs {
   color: #888;
 }
+
+
+body, #root, .App {
+  height: 200vh; /* Adds extra space to test scrolling */
+}

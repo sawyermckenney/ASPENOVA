@@ -1,0 +1,5 @@
+/* In your CSS file */
+.reactive-background:hover {
+    opacity: 0.95;
+    filter: brightness(95%);
+  }

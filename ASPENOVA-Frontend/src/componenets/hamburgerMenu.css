@@ -6,7 +6,7 @@
     position: fixed;
     top: 0;
     left: 0;
-    background: rgba(18, 16, 16, 0.514);
+    background: rgba(222, 230, 238, 0.706);
     display: flex;
     align-items: center; 
     justify-content: space-between; 
@@ -16,30 +16,23 @@
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    width: 30px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     background: none;
     border: none;
     cursor: pointer;
+
   }
-
-
 
   
-.hamburger-button .bar {
-    display: block;
-    width: 100%;
-    height: 4px;
-    background-color: #333;
-    transition: 0.3s;
-    border-radius: 10%;
+  .hamburger-button .hamburger-lines {
+    transition: stroke 0.3s ease; 
   }
   
-.hamburger-button:hover .bar{
-    background-color: rgb(158, 136, 136);
+  .hamburger-button:hover .hamburger-lines {
+    stroke: rgb(158, 136, 136); 
   }
-
-.sidebar {
+  .sidebar {
     position: fixed;
     top: 0;
     left: -250px; 
@@ -59,17 +52,20 @@
     display: flex;
     flex-direction: column;
     padding: 20px;
+    font-family: 'Ubuntu', sans-serif;
+    height: 100%;
   }
   
   .sidebar-content{
     text-decoration: none;
     color: rgb(111, 39, 39);
-    padding: 10px 0;
+    padding: 0px 0;
     transition: color 0.3s ease;
+    text-align: center;
   }
   
   .sidebar-content a:hover {
-    color: #ff6347;
+    color: #141414;
   }
   
   
