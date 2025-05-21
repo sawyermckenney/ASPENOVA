@@ -21,8 +21,8 @@ export interface Job {
 export const productsData: Product[] = [
   {
     id: '1',
-    name: 'NovaCore Platform',
-    description: 'A revolutionary platform designed to streamline your business operations with cutting-edge technology and intuitive design.',
+    name: 'InkSync eInk Display',
+    description: 'A revolutionary price tag management system designed to streamline your business operations with cutting-edge technology and intuitive design.',
     imageUrl: 'https://placehold.co/600x400.png',
     dataAiHint: 'abstract technology',
     features: ['AI-Powered Analytics', 'Scalable Infrastructure', 'User-Friendly Interface', 'Seamless Integration'],
@@ -72,7 +72,7 @@ export const jobsData: Job[] = [
     id: '2',
     title: 'Product Manager',
     department: 'Product',
-    location: 'New York, NY',
+    location: 'Remote',
     type: 'Full-time',
     description: 'Join our product team to define and drive the roadmap for our innovative solutions. You will work closely with engineering, design, and marketing to deliver exceptional products that meet customer needs.',
     responsibilities: [

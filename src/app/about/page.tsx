@@ -87,9 +87,9 @@ export default function AboutPage() {
         <h2 className="text-3xl font-semibold text-foreground text-center mb-10">Meet Our (Placeholder) Leadership</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
           {[
-            { name: "Alex Chen", title: "Chief Executive Officer", dataAiHint: "professional portrait" },
-            { name: "Maria Rodriguez", title: "Chief Technology Officer", dataAiHint: "woman tech leader" },
-            { name: "Sam Green", title: "Head of Product", dataAiHint: "product manager" },
+            { name: "Ryan Zheng", title: "Chief Executive Officer", dataAiHint: "professional portrait" },
+            { name: "Sawyer McKenney", title: "Chief Technology Officer", dataAiHint: "woman tech leader" },
+            { name: "TBD", title: "Head of Product", dataAiHint: "product manager" },
           ].map((leader) => (
             <Card key={leader.name} className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow">
               <Image

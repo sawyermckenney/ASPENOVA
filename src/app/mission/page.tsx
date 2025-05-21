@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import Image from "next/image";
 
 export const metadata: Metadata = {
-  title: 'Our Mission - AspenFlow',
+  title: 'Our Mission - InkSync',
   description: 'Learn about the mission, vision, and values that drive ASPENOVA.',
 };
 

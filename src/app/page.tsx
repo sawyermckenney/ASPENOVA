@@ -11,7 +11,7 @@ export default function HomePage() {
       <section className="w-full py-20 md:py-32 bg-secondary/30">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">
-            Welcome to <span className="text-primary">AspenFlow</span>
+            Welcome to <span className="text-primary">InkSync</span>
           </h1>
           <p className="mt-6 text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
             At ASPENOVA, we craft innovative solutions designed for the modern world. Experience the future of technology with our minimalist and powerful products.
@@ -52,7 +52,7 @@ export default function HomePage() {
                 Founded on the principles of clarity, efficiency, and user-centricity, ASPENOVA strives to create technology that not only solves complex problems but also enhances the human experience. Our team of passionate innovators, designers, and engineers works collaboratively to bring visionary ideas to life.
               </p>
               <p className="text-lg text-foreground leading-relaxed">
-                We believe in the power of minimalist design and robust functionality. Every product and service we offer is a testament to our commitment to quality and excellence. Discover how AspenFlow, our flagship suite, can transform your workflow and elevate your business.
+                We believe in the power of minimalist design and robust functionality. Every product and service we offer is a testament to our commitment to quality and excellence. Discover how InkSync, our flagship suite, can transform your workflow and elevate your business.
               </p>
               <ul className="space-y-3 mt-4">
                 <li className="flex items-center text-foreground">

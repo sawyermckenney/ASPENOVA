@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'AspenFlow - ASPENOVA',
+  title: 'ASPENOVA',
   description: 'Modern solutions by ASPENOVA. Clean, minimalist, and innovative.',
 };
 

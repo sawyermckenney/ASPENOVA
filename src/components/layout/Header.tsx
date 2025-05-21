@@ -42,7 +42,7 @@ export default function Header() {
     <header className="bg-background/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-foreground hover:text-primary transition-colors">
-          AspenFlow
+          ASPENOVA
         </Link>
 
         {/* Desktop Navigation */}
