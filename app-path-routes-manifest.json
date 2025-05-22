@@ -3,7 +3,7 @@
   "/favicon.ico/route": "/favicon.ico",
   "/about/page": "/about",
   "/page": "/",
-  "/careers/page": "/careers",
+  "/products/page": "/products",
   "/mission/page": "/mission",
-  "/products/page": "/products"
+  "/careers/page": "/careers"
 }
