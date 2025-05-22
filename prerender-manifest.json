@@ -102,30 +102,6 @@
         "x-next-revalidate-tag-token"
       ]
     },
-    "/products": {
-      "experimentalBypassFor": [
-        {
-          "type": "header",
-          "key": "Next-Action"
-        },
-        {
-          "type": "header",
-          "key": "content-type",
-          "value": "multipart/form-data;.*"
-        }
-      ],
-      "initialRevalidateSeconds": false,
-      "srcRoute": "/products",
-      "dataRoute": "/products.rsc",
-      "allowHeader": [
-        "host",
-        "x-matched-path",
-        "x-prerender-revalidate",
-        "x-prerender-revalidate-if-generated",
-        "x-next-revalidated-tags",
-        "x-next-revalidate-tag-token"
-      ]
-    },
     "/mission": {
       "experimentalBypassFor": [
         {
@@ -149,13 +125,37 @@
         "x-next-revalidated-tags",
         "x-next-revalidate-tag-token"
       ]
+    },
+    "/products": {
+      "experimentalBypassFor": [
+        {
+          "type": "header",
+          "key": "Next-Action"
+        },
+        {
+          "type": "header",
+          "key": "content-type",
+          "value": "multipart/form-data;.*"
+        }
+      ],
+      "initialRevalidateSeconds": false,
+      "srcRoute": "/products",
+      "dataRoute": "/products.rsc",
+      "allowHeader": [
+        "host",
+        "x-matched-path",
+        "x-prerender-revalidate",
+        "x-prerender-revalidate-if-generated",
+        "x-next-revalidated-tags",
+        "x-next-revalidate-tag-token"
+      ]
     }
   },
   "dynamicRoutes": {},
   "notFoundRoutes": [],
   "preview": {
-    "previewModeId": "6f80e4867a69cc86f4f02ddaeaa216ec",
-    "previewModeSigningKey": "67665c12c389f708c8e57103073953db79f69e08983a0023849bce08cec80905",
-    "previewModeEncryptionKey": "13bae5e6d149740f1005ef9a63eac404f11558cc4232192fe9cdfbd9aceb39a5"
+    "previewModeId": "9d710992e4703914185200ed1a53f2d8",
+    "previewModeSigningKey": "db785b10b32a4a1048325f6c456ae091800e63a6fd2ef21553b736eda1e720b2",
+    "previewModeEncryptionKey": "1bc01bb26f535a7820cb656b481c73b8641bb97440c4dca9edeaf9d098857e09"
   }
 }
