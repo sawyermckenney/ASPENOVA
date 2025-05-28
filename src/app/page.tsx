@@ -1,14 +1,21 @@
+'use client';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Lightbulb, Rocket, Users } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion } from 'framer-motion';
 
 export default function HomePage() {
   return (
     <div className="flex flex-col items-center">
       {/* Hero Section */}
-      <section className="w-full py-20 md:py-32 bg-secondary/30">
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full py-20 md:py-32 bg-secondary/30"
+      >
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight text-foreground">
             Welcome to <span className="text-primary">InkSync</span>
@@ -25,10 +32,15 @@ export default function HomePage() {
             </Button>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* About Us Snapshot Section */}
-      <section className="w-full py-16 md:py-24">
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full py-16 md:py-24"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-semibold text-foreground">Who We Are</h2>
@@ -71,10 +83,15 @@ export default function HomePage() {
             </div>
           </div>
         </div>
-      </section>
+      </motion.section>
 
       {/* Core Values Section */}
-      <section className="w-full py-16 md:py-24 bg-secondary/30">
+      <motion.section
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="w-full py-16 md:py-24 bg-secondary/30"
+      >
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-semibold text-foreground">Our Core Values</h2>
@@ -112,7 +129,7 @@ export default function HomePage() {
             </Card>
           </div>
         </div>
-      </section>
+      </motion.section>
     </div>
   );
 }
