@@ -1,8 +1,12 @@
+'use client';
 import Image from 'next/image';
 import type { Product } from '@/lib/placeholder-data';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
+import { motion } from 'framer-motion';
+
+const MotionCard = motion(Card);
 
 interface ProductCardProps {
   product: Product;
@@ -10,7 +14,12 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   return (
-    <Card className="flex flex-col h-full shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1">
+    <MotionCard
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="flex flex-col h-full shadow-lg hover:shadow-xl transition-all duration-300 ease-in-out transform hover:-translate-y-1"
+    >
       <CardHeader>
         <div className="relative w-full h-48 mb-4 rounded-t-md overflow-hidden">
           <Image
@@ -47,6 +56,6 @@ export default function ProductCard({ product }: ProductCardProps) {
           Learn More
         </Button>
       </CardFooter>
-    </Card>
+    </MotionCard>
   );
 }
