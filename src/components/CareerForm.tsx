@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { Paperclip, Send } from "lucide-react";
+import { motion } from 'framer-motion';
 
 const formSchema = z.object({
   fullName: z.string().min(2, {
@@ -64,88 +65,94 @@ export default function CareerForm() {
   }
 
   return (
-    <Card className="w-full max-w-2xl mx-auto shadow-xl">
-      <CardHeader>
-        <CardTitle className="text-2xl md:text-3xl text-foreground">Apply for a Position</CardTitle>
-        <CardDescription>
-          Interested in joining our team? Fill out the form below.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="fullName"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Full Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. Jane Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email Address</FormLabel>
-                  <FormControl>
-                    <Input type="email" placeholder="e.g. jane.doe@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="resume"
-              render={({ field: { onChange, value, ...rest } }) => (
-                <FormItem>
-                  <FormLabel>Resume/CV</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="file" 
-                      accept=".pdf,.doc,.docx"
-                      onChange={(e) => onChange(e.target.files)}
-                      className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
-                      {...rest} 
-                    />
-                  </FormControl>
-                  <FormDescription className="flex items-center">
-                    <Paperclip className="h-3 w-3 mr-1" /> Attach your resume (PDF, DOC, DOCX, max 5MB).
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="coverLetter"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Cover Letter</FormLabel>
-                  <FormControl>
-                    <Textarea
-                      placeholder="Tell us why you're a great fit for ASPENOVA..."
-                      className="min-h-[150px]"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full sm:w-auto" disabled={form.formState.isSubmitting}>
-              {form.formState.isSubmitting ? "Submitting..." : "Submit Application"}
-              <Send className="ml-2 h-4 w-4" />
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+    <motion.div
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
+      <Card className="w-full max-w-2xl mx-auto shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-2xl md:text-3xl text-foreground">Apply for a Position</CardTitle>
+          <CardDescription>
+            Interested in joining our team? Fill out the form below.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+              <FormField
+                control={form.control}
+                name="fullName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Full Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="e.g. Jane Doe" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email Address</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="e.g. jane.doe@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="resume"
+                render={({ field: { onChange, value, ...rest } }) => (
+                  <FormItem>
+                    <FormLabel>Resume/CV</FormLabel>
+                    <FormControl>
+                      <Input 
+                        type="file" 
+                        accept=".pdf,.doc,.docx"
+                        onChange={(e) => onChange(e.target.files)}
+                        className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                        {...rest} 
+                      />
+                    </FormControl>
+                    <FormDescription className="flex items-center">
+                      <Paperclip className="h-3 w-3 mr-1" /> Attach your resume (PDF, DOC, DOCX, max 5MB).
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="coverLetter"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Cover Letter</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Tell us why you're a great fit for ASPENOVA..."
+                        className="min-h-[150px]"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full sm:w-auto" disabled={form.formState.isSubmitting}>
+                {form.formState.isSubmitting ? "Submitting..." : "Submit Application"}
+                <Send className="ml-2 h-4 w-4" />
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 }

@@ -100,33 +100,51 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader className="items-center text-center">
-                <Lightbulb className="h-12 w-12 mb-4 text-primary" />
-                <CardTitle className="text-2xl">Innovation</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center text-muted-foreground">
-                We constantly seek new ways to solve problems and improve user experiences through cutting-edge technology.
-              </CardContent>
-            </Card>
-            <Card className="shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader className="items-center text-center">
-                <Users className="h-12 w-12 mb-4 text-primary" />
-                <CardTitle className="text-2xl">Customer Focus</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center text-muted-foreground">
-                Our customers are at the heart of our decisions. We strive to understand and meet their evolving needs.
-              </CardContent>
-            </Card>
-            <Card className="shadow-lg hover:shadow-xl transition-shadow">
-              <CardHeader className="items-center text-center">
-                <Rocket className="h-12 w-12 mb-4 text-primary" />
-                <CardTitle className="text-2xl">Excellence</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center text-muted-foreground">
-                We are committed to the highest standards of quality in our products, services, and operations.
-              </CardContent>
-            </Card>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="shadow-md hover:shadow-lg transition-shadow w-full">
+                <CardHeader className="items-center text-center">
+                  <Lightbulb className="h-12 w-12 mb-4 text-primary" />
+                  <CardTitle className="text-2xl">Innovation</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground">
+                  We constantly seek new ways to solve problems and improve user experiences through cutting-edge technology.
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="shadow-md hover:shadow-lg transition-shadow w-full">
+                <CardHeader className="items-center text-center">
+                  <Users className="h-12 w-12 mb-4 text-primary" />
+                  <CardTitle className="text-2xl">Customer Focus</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground">
+                  Our customers are at the heart of our decisions. We strive to understand and meet their evolving needs.
+                </CardContent>
+              </Card>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <Card className="shadow-md hover:shadow-lg transition-shadow w-full">
+                <CardHeader className="items-center text-center">
+                  <Rocket className="h-12 w-12 mb-4 text-primary" />
+                  <CardTitle className="text-2xl">Excellence</CardTitle>
+                </CardHeader>
+                <CardContent className="text-center text-muted-foreground">
+                  We are committed to the highest standards of quality in our products, services, and operations.
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </motion.section>

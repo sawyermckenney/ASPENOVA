@@ -6,6 +6,7 @@ import { Menu, X, Briefcase, Target, Users, HomeIcon, ShoppingBag } from 'lucide
 import { Button } from '@/components/ui/button';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 interface NavItem {
   href: string;
@@ -39,7 +40,12 @@ export default function Header() {
   }
 
   return (
-    <header className="bg-background/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b">
+    <motion.header
+      initial={{ opacity: 0, y: -20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="bg-background/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b"
+    >
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="text-2xl font-bold text-foreground hover:text-primary transition-colors">
           ASPENOVA
@@ -97,6 +103,6 @@ export default function Header() {
           </nav>
         </div>
       )}
-    </header>
+    </motion.header>
   );
 }
