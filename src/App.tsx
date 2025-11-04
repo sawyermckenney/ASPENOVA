@@ -16,14 +16,18 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-white">
-      <Header />
-      <Hero onShopClick={scrollToShop} />
-      <ShopGrid />
-      <ProductSpotlight />
-      <Lookbook />
-      <AboutSection />
-      <Footer />
+    <div className="min-h-screen bg-gradient-to-b from-[#04060d] via-[#070a12] to-white text-white/90">
+      <div className="relative isolate">
+        <Header />
+        <main className="text-white/90">
+          <Hero onShopClick={scrollToShop} />
+          <ShopGrid />
+          <ProductSpotlight />
+          <Lookbook />
+          <AboutSection />
+        </main>
+        <Footer />
+      </div>
       <Toaster position="bottom-right" />
     </div>
   );

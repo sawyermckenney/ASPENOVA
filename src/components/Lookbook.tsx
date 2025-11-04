@@ -40,7 +40,11 @@ export function Lookbook() {
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
 
   return (
-    <section ref={containerRef} className="py-32 px-6 bg-black relative overflow-hidden">
+    <section
+      id="lookbook"
+      ref={containerRef}
+      className="py-32 px-6 bg-black relative overflow-hidden"
+    >
       {/* Background Grain */}
       <div 
         className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"

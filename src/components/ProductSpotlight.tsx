@@ -17,7 +17,7 @@ export function ProductSpotlight() {
           >
             <div className="aspect-square bg-zinc-50 flex items-center justify-center p-12">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1611179196291-e3d87435d123?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0cnVja2VyJTIwaGF0JTIwc3RyZWV0d2VhcnxlbnwxfHx8fDE3NjIxMTkwNDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                src="/src/components/images/hatLogo.JPG"
                 alt="The Aspen Trucker Hat"
                 className="w-full h-full object-contain"
               />
