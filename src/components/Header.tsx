@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform } from 'motion/react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Search, ShoppingCart, Menu, X } from 'lucide-react';
 import hatLogo from './images/blackLogo.png';
 
@@ -24,18 +24,6 @@ const navLinkAnimation = {
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { scrollY } = useScroll();
-
-  const backgroundColor = useTransform(
-    scrollY,
-    [0, 160],
-    ['rgba(0,0,0,0.35)', 'rgba(0,0,0,0.7)']
-  );
-  const borderColor = useTransform(
-    scrollY,
-    [0, 160],
-    ['rgba(255,255,255,0.05)', 'rgba(255,255,255,0.15)']
-  );
 
   const scrollToSection = (id: string) => {
     const section = document.getElementById(id);
@@ -50,15 +38,14 @@ export function Header() {
       initial={{ y: -28, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      style={{ backgroundColor, borderColor }}
-      className="fixed top-0 left-0 right-0 z-50 border-b text-white font-sans backdrop-blur-md shadow-[0_16px_36px_rgba(0,0,0,0.45)]"
+      className="fixed top-0 left-0 right-0 z-50 border-b border-black/10 bg-white text-zinc-900 font-sans shadow-[0_16px_36px_rgba(0,0,0,0.12)]"
     >
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center px-3 sm:px-5 lg:px-8">
         <div className="flex w-full items-center justify-between gap-3 sm:gap-5">
           {/* Brand */}
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex min-w-0 items-center gap-3 text-white transition-colors duration-300 hover:text-white/70"
+            className="flex min-w-0 items-center gap-3 text-zinc-900 transition-colors duration-300 hover:text-zinc-600"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.96 }}
             aria-label="Home"
@@ -66,12 +53,12 @@ export function Header() {
             <motion.img
               src={hatLogo}
               alt="Aspenova logo"
-              className="h-8 w-8 shrink-0 rounded-full object-cover ring-1 ring-white/25 md:h-9 md:w-9"
+              className="h-12 w-12 shrink-0 rounded-full object-cover ring-1 ring-black/10 md:h-14 md:w-14"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.4 }}
             />
-            <span className="truncate text-[0.6rem] font-medium uppercase tracking-[0.42em] text-white/80 sm:text-[0.62rem] sm:tracking-[0.5em] md:text-xs lg:tracking-[0.7em]">
+            <span className="truncate text-[0.6rem] font-medium uppercase tracking-[0.42em] text-zinc-600 sm:text-[0.62rem] sm:tracking-[0.5em] md:text-xs lg:tracking-[0.7em]">
               ASPENOVA
             </span>
           </motion.button>
@@ -86,11 +73,11 @@ export function Header() {
                 initial="hidden"
                 animate="visible"
                 onClick={() => scrollToSection(item.target)}
-                className="group relative text-[0.56rem] uppercase tracking-[0.42em] text-white/70 transition-colors duration-300 hover:text-white sm:text-[0.58rem] sm:tracking-[0.48em] md:text-[0.6rem] md:tracking-[0.52em] lg:text-[0.62rem] lg:tracking-[0.64em]"
+                className="group relative text-[0.56rem] uppercase tracking-[0.42em] text-zinc-500 transition-colors duration-300 hover:text-zinc-900 sm:text-[0.58rem] sm:tracking-[0.48em] md:text-[0.6rem] md:tracking-[0.52em] lg:text-[0.62rem] lg:tracking-[0.64em]"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
               >
-                <span className="relative inline-flex items-center pb-1 after:absolute after:bottom-0 after:left-1/2 after:h-[1px] after:w-6 after:-translate-x-1/2 after:scale-x-0 after:bg-white after:opacity-0 after:transition-all after:duration-300 after:ease-out group-hover:after:scale-x-100 group-hover:after:opacity-100 md:after:w-8">
+                <span className="relative inline-flex items-center pb-1 after:absolute after:bottom-0 after:left-1/2 after:h-[1px] after:w-6 after:-translate-x-1/2 after:scale-x-0 after:bg-black after:opacity-0 after:transition-all after:duration-300 after:ease-out group-hover:after:scale-x-100 group-hover:after:opacity-100 md:after:w-8">
                   {item.label}
                 </span>
               </motion.button>
@@ -100,7 +87,7 @@ export function Header() {
           <div className="flex min-w-0 items-center justify-end gap-2">
             <div className="hidden items-center gap-3 md:flex">
               <motion.button
-                className="group rounded-full p-2 text-white/70 transition-colors duration-300 hover:bg-white/10 hover:text-white"
+                className="group rounded-full p-2 text-zinc-500 transition-colors duration-300 hover:bg-zinc-900/5 hover:text-zinc-900"
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.92 }}
                 aria-label="Search"
@@ -109,7 +96,7 @@ export function Header() {
               </motion.button>
 
               <motion.button
-                className="group rounded-full p-2 text-white/70 transition-colors duration-300 hover:bg-white/10 hover:text-white"
+                className="group rounded-full p-2 text-zinc-500 transition-colors duration-300 hover:bg-zinc-900/5 hover:text-zinc-900"
                 whileHover={{ scale: 1.08 }}
                 whileTap={{ scale: 0.92 }}
                 aria-label="Shopping Cart"
@@ -121,7 +108,7 @@ export function Header() {
             {/* Mobile Menu Button */}
             <motion.button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="rounded-full p-2 text-white transition-colors duration-300 hover:bg-white/10 md:hidden"
+              className="rounded-full p-2 text-zinc-700 transition-colors duration-300 hover:bg-zinc-900/5 md:hidden"
               whileHover={{ scale: 1.08 }}
               whileTap={{ scale: 0.92 }}
               aria-label="Menu"

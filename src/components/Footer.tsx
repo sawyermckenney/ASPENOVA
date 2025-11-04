@@ -70,7 +70,7 @@ export function Footer() {
           {/* Social Links */}
           <div className="flex justify-center gap-6">
             <a
-              href="https://instagram.com"
+              href="https://www.instagram.com/aspenovaclub/?hl=en"
               target="_blank"
               rel="noopener noreferrer"
               className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white/40 transition-all duration-300"
@@ -86,7 +86,7 @@ export function Footer() {
               <ShoppingBag size={20} />
             </a>
             <a
-              href="mailto:hello@aspenova.com"
+              href="mailto:ryanzsawyerm@googlegroups.com"
               className="w-12 h-12 rounded-full border border-white/20 flex items-center justify-center hover:bg-white/10 hover:border-white/40 transition-all duration-300"
               aria-label="Email"
             >

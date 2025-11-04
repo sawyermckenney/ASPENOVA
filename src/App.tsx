@@ -23,7 +23,7 @@ export default function App() {
           <Hero onShopClick={scrollToShop} />
           <ShopGrid />
           <ProductSpotlight />
-          <Lookbook />
+          {/* <Lookbook /> */}
           <AboutSection />
         </main>
         <Footer />
