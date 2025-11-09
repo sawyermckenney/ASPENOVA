@@ -1,30 +1,55 @@
 import { motion } from 'motion/react';
 import { Button } from './ui/button';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { ProductImageGallery } from './ProductImageGallery';
+
+import frontViewImage from './images/productImages/hatLogo.JPG';
+import leftViewImage from './images/productImages/leftSide.jpg';
+import rightViewImage from './images/productImages/rightSide.jpg';
+import insideViewImage from './images/productImages/inSide.jpg';
+import backViewImage from './images/productImages/backSide.jpg';
+
+// Product images for different views
+const productImages = [
+  {
+    src: frontViewImage,
+    alt: 'The Aspen Trucker Hat - Front View',
+    label: 'FRONT VIEW',
+  },
+  {
+    src: leftViewImage,
+    alt: 'The Aspen Trucker Hat - Left Side View',
+    label: 'LEFT VIEW',
+  },
+  {
+    src: rightViewImage,
+    alt: 'The Aspen Trucker Hat - Right Side View',
+    label: 'RIGHT VIEW',
+  },
+  {
+    src: backViewImage,
+    alt: 'The Aspen Trucker Hat - Back View',
+    label: 'BACK VIEW',
+  },
+  {
+    src: insideViewImage,
+    alt: 'The Aspen Trucker Hat - Inside Detail',
+    label: 'INSIDE DETAIL',
+  },
+];
 
 export function ProductSpotlight() {
   return (
     <section className="py-32 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
-          {/* Product Image */}
+          {/* Product Image Gallery */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="relative"
           >
-            <div className="aspect-square bg-zinc-50 flex items-center justify-center p-12">
-              <ImageWithFallback
-                src="/src/components/images/hatLogo.JPG"
-                alt="The Aspen Trucker Hat"
-                className="w-full h-full object-contain"
-              />
-            </div>
-            
-            {/* Decorative Element */}
-            <div className="absolute -bottom-6 -right-6 w-32 h-32 border border-zinc-200 -z-10" />
+            <ProductImageGallery images={productImages} />
           </motion.div>
 
           {/* Product Details */}
@@ -47,29 +72,29 @@ export function ProductSpotlight() {
               <div className="h-px w-16 bg-zinc-800" />
               
               <p className="text-zinc-600 leading-relaxed">
-                Born between the mountains and the streets. Aspenova Club flips perspective.
+                A premium take on the classic city wear silhouette. The Aspen combines time-honored 5-panel 
+                construction with contemporary streetwear sensibility, delivering comfort and style in equal measure.
               </p>
               
               <p className="text-zinc-600 leading-relaxed">
-                This isn't just a hat — it's a statement. The upside-down "ASPEN" logo 
-                represents seeing the world from a different angle, challenging convention, 
-                and embracing the rebellion of urban creativity.
+                Our signature embroidered upside-down logo sits proudly on the structured front panel, 
+                delivering a distinct look that stands out. Finished with an adjustable 
+                snapback closure for the perfect fit — this is city wear hat craftsmanship elevated.
               </p>
             </div>
 
             <div className="space-y-4">
               <div className="flex items-baseline gap-4">
-                <span className="text-black tracking-wider">$48</span>
+                <span className="text-black tracking-wider">$39.99</span>
                 <span className="text-zinc-400 text-sm">Free shipping on orders over $75</span>
               </div>
 
               <div className="space-y-2">
-                <h4 className="text-sm tracking-wider text-black">Details</h4>
+                <h4 className="text-sm tracking-wider text-black">SPECIFICATIONS</h4>
                 <ul className="space-y-1 text-zinc-600 text-sm">
-                  <li>• Premium mesh back construction</li>
+                  <li>• 5-panel city wear construction</li>
+                  <li>• Premium embroidered upside-down logo</li>
                   <li>• Adjustable snapback closure</li>
-                  <li>• Embroidered upside-down logo</li>
-                  <li>• Structured front panel</li>
                   <li>• One size fits most</li>
                 </ul>
               </div>

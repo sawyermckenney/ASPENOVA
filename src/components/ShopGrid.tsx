@@ -1,12 +1,12 @@
 import { motion } from 'motion/react';
 import { ProductCard } from './ProductCard';
 import { toast } from 'sonner@2.0.3';
-import hatLogo from './images/hatLogo.JPG';
+import hatLogo from './images/productImages/hatLogo.JPG';    
 
 const product = {
   id: 1,
   name: 'The Aspen — Black',
-  price: 48,
+  price: 39.99,
   image: hatLogo,
   badge: 'DROP 01',
 };

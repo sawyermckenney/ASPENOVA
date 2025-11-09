@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import foundersChildImage from './images/founders/foundersChildImage.jpg';
 
 export function AboutSection() {
   return (
@@ -28,23 +29,19 @@ export function AboutSection() {
 
             <div className="space-y-6 text-zinc-600 leading-relaxed">
               <p>
-                Aspenova Club is where urban grit meets mountain calm. A creative rebellion 
-                stitched into every hat.
+                Aspenova Club started with two friends, Ryan and Sawyer, who always looked for the view nobody else saw—a perspective that challenges the ordinary and celebrates what happens when you flip the script.
               </p>
               
               <p>
-                We believe in the power of perspective — that the most interesting views 
-                come when you flip the script, challenge the norm, and see things upside down.
+                United by a shared drive for creativity and a love of the unexpected, they believed that greatness lives at the crossroads of contrast. Whether it’s city streets or mountain peaks, they set out to create pieces that embody that spirit—and a hat was the first step.
               </p>
 
               <p>
-                Born from the streets but inspired by elevation, our pieces are designed 
-                for those who refuse to be defined by a single landscape. You're not just 
-                mountain. You're not just city. You're the intersection.
+                This isn't just a drop of streetwear; this is the very beginning of a lifelong venture rooted in curiosity, friendship, and the conviction that fresh perspectives can change everything. One product, and a whole journey ahead.
               </p>
 
               <p className="italic text-black">
-                This is more than streetwear. This is elevation culture.
+                Our story is just getting started.
               </p>
             </div>
 
@@ -55,7 +52,7 @@ export function AboutSection() {
               </div>
               <div>
                 <p className="text-black tracking-wider mb-1">Location</p>
-                <p className="text-zinc-600">Denver, CO</p>
+                <p className="text-zinc-600">Aspen, CO</p>
               </div>
               <div>
                 <p className="text-black tracking-wider mb-1">Mission</p>
@@ -74,8 +71,8 @@ export function AboutSection() {
           >
             <div className="aspect-[4/5] overflow-hidden bg-black">
               <ImageWithFallback
-                src="https://images.unsplash.com/photo-1513563326940-e76e4641069e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaXR5JTIwc2t5bGluZSUyMG5pZ2h0fGVufDF8fHx8MTc2MjExMjM0M3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-                alt="City skyline at night"
+                src={foundersChildImage}
+                alt="Aspenova Club founder as a child"
                 className="w-full h-full object-cover opacity-90"
               />
             </div>
