@@ -66,7 +66,7 @@ export function Hero({ onShopClick }: HeroProps) {
               onClick={onShopClick}
               className="px-12 py-6 bg-white text-black hover:bg-zinc-100 transition-all duration-300 tracking-widest shadow-xl hover:shadow-2xl"
             >
-              Shop the Drop →
+              Preview The Drop 
             </Button>
           </motion.div>
         </motion.div>

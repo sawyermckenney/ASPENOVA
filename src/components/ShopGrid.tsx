@@ -41,7 +41,7 @@ export function ShopGrid() {
   const inventoryLabel = isInventoryLoading
     ? 'Checking inventory…'
     : isOutOfStock
-      ? 'Sold Out'
+      ? 'Coming Soon'
       : typeof remainingStock === 'number'
         ? `${remainingStock} Left In Stock`
         : undefined;

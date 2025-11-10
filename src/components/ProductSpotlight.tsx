@@ -38,6 +38,11 @@ const productImages = [
 ];
 
 export function ProductSpotlight() {
+  const handleViewProductClick = () => {
+    const shopSection = document.getElementById('shop');
+    shopSection?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section className="py-32 px-6 bg-white">
       <div className="max-w-6xl mx-auto">
@@ -99,7 +104,10 @@ export function ProductSpotlight() {
                 </ul>
               </div>
 
-              <Button className="w-full md:w-auto px-12 py-6 bg-black text-white hover:bg-zinc-800 tracking-wider">
+              <Button
+                className="w-full md:w-auto px-12 py-6 bg-black text-white hover:bg-zinc-800 tracking-wider"
+                onClick={handleViewProductClick}
+              >
                 View Product
               </Button>
             </div>

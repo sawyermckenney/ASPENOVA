@@ -100,7 +100,7 @@ export function ProductCard({
           disabled={isOutOfStock}
           className="w-full bg-black text-white hover:bg-zinc-800 transition-colors disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
-          {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
+          {isOutOfStock ? 'Coming Soon' : 'Add to Cart'}
         </Button>
       </div>
     </motion.div>

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { X, Minus, Plus, Trash2, ShoppingBag } from 'lucide-react';
 import { useCart } from '../contexts/CartContext';
@@ -31,6 +31,7 @@ export function CartDrawer() {
   const [isMobile, setIsMobile] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(0);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+  const checkoutSectionRef = useRef<HTMLDivElement>(null);
   const variantIds = useMemo(
     () => Array.from(new Set(items.map((item) => item.shopifyVariantId))),
     [items]
@@ -149,6 +150,10 @@ export function CartDrawer() {
 
   const checkoutPaddingBottom = isMobile ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' : undefined;
 
+  const handleScrollToCheckout = () => {
+    checkoutSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -199,6 +204,18 @@ export function CartDrawer() {
               </button>
             </div>
 
+            {hasItems && shouldEnableDrawerScroll && (
+              <div className="px-6 py-3 text-right">
+                <button
+                  type="button"
+                  onClick={handleScrollToCheckout}
+                  className="text-[11px] uppercase tracking-[0.3em] text-black/70 transition hover:text-black dark:text-white/70 dark:hover:text-white"
+                >
+                  Scroll to Checkout ↓
+                </button>
+              </div>
+            )}
+
             <div
               className={cn(
                 'flex-1 px-6 py-6',
@@ -243,7 +260,7 @@ export function CartDrawer() {
                     const inventoryLabel = isInventoryLoading
                       ? 'Checking inventory…'
                       : isOutOfStock
-                        ? 'Sold Out'
+                        ? 'Coming Soon'
                         : typeof remainingStock === 'number'
                           ? `${remainingStock} Left`
                           : undefined;
@@ -323,6 +340,7 @@ export function CartDrawer() {
             </div>
 
             <div
+              ref={checkoutSectionRef}
               className="space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10"
               style={{ paddingBottom: checkoutPaddingBottom }}
             >
