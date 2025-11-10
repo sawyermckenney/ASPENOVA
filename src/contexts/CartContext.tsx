@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
 
 export interface CartItem {
   id: number;
@@ -7,7 +7,7 @@ export interface CartItem {
   image: string;
   quantity: number;
   color?: string;
-  shopifyVariantId?: string;
+  shopifyVariantId: string;
 }
 
 interface CartContextValue {
@@ -22,6 +22,7 @@ interface CartContextValue {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
+  getVariantQuantity: (variantId: string) => number;
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined);
@@ -75,6 +76,19 @@ export function CartProvider({ children }: { children: ReactNode }) {
     [items]
   );
 
+  const variantQuantityMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const item of items) {
+      map.set(item.shopifyVariantId, (map.get(item.shopifyVariantId) ?? 0) + item.quantity);
+    }
+    return map;
+  }, [items]);
+
+  const getVariantQuantity = useCallback(
+    (variantId: string) => variantQuantityMap.get(variantId) ?? 0,
+    [variantQuantityMap]
+  );
+
   const value = useMemo<CartContextValue>(
     () => ({
       items,
@@ -88,8 +102,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
       openCart,
       closeCart,
       toggleCart,
+      getVariantQuantity,
     }),
-    [items, itemCount, total, isOpen]
+    [items, itemCount, total, isOpen, getVariantQuantity]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -8,11 +8,32 @@ interface ProductCardProps {
   price: number;
   image: string;
   badge?: string;
+  stockLeft?: number;
+  isOutOfStock?: boolean;
+  inventoryLabel?: string;
+  inventoryTone?: 'muted' | 'warning' | 'danger';
   onAddToCart?: () => void;
 }
 
-export function ProductCard({ name, price, image, badge, onAddToCart }: ProductCardProps) {
+export function ProductCard({
+  name,
+  price,
+  image,
+  badge,
+  stockLeft,
+  isOutOfStock,
+  inventoryLabel,
+  inventoryTone = 'muted',
+  onAddToCart,
+}: ProductCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const showInventory = Boolean(inventoryLabel);
+  const toneClass =
+    inventoryTone === 'danger'
+      ? 'text-red-600'
+      : inventoryTone === 'warning'
+        ? 'text-amber-600'
+        : 'text-zinc-500';
 
   return (
     <motion.div
@@ -63,13 +84,23 @@ export function ProductCard({ name, price, image, badge, onAddToCart }: ProductC
         <div className="space-y-1">
           <h3 className="tracking-wide text-black">{name}</h3>
           <p className="text-zinc-600">${price}</p>
+          {showInventory && (
+            <p
+              className={`text-xs uppercase tracking-[0.25em] ${
+                isOutOfStock ? 'text-red-600' : toneClass
+              }`}
+            >
+              {inventoryLabel}
+            </p>
+          )}
         </div>
 
         <Button
           onClick={onAddToCart}
-          className="w-full bg-black text-white hover:bg-zinc-800 transition-colors"
+          disabled={isOutOfStock}
+          className="w-full bg-black text-white hover:bg-zinc-800 transition-colors disabled:cursor-not-allowed disabled:bg-zinc-400"
         >
-          Add to Cart
+          {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
         </Button>
       </div>
     </motion.div>

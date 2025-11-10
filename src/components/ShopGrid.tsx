@@ -3,8 +3,10 @@ import { ProductCard } from './ProductCard';
 import { toast } from 'sonner@2.0.3';
 import hatLogo from './images/productImages/hatLogo.JPG';
 import { useCart } from '../contexts/CartContext';
+import { useVariantAvailability } from '../hooks/useVariantAvailability';
 
 const DEFAULT_VARIANT_ID = import.meta.env.VITE_SHOPIFY_PRIMARY_VARIANT_ID ?? '';
+const PRODUCT_HANDLE = import.meta.env.VITE_SHOPIFY_PRODUCT_HANDLE ?? '';
 
 const product = {
   id: 1,
@@ -16,9 +18,52 @@ const product = {
 };
 
 export function ShopGrid() {
-  const { addItem } = useCart();
+  const { addItem, getVariantQuantity } = useCart();
+  const availabilityMap = useVariantAvailability(
+    product.shopifyVariantId ? [product.shopifyVariantId] : [],
+    {
+      productHandle: PRODUCT_HANDLE || undefined,
+    }
+  );
+  const variantAvailability = availabilityMap[product.shopifyVariantId];
+
+  const quantityAvailable = variantAvailability?.quantityAvailable ?? null;
+  const quantityInCart = getVariantQuantity(product.shopifyVariantId);
+  const remainingStock =
+    typeof quantityAvailable === 'number'
+      ? Math.max(quantityAvailable - quantityInCart, 0)
+      : undefined;
+  const isOutOfStock =
+    variantAvailability?.availableForSale === false ||
+    (typeof quantityAvailable === 'number' && quantityAvailable <= quantityInCart);
+  const isInventoryLoading = variantAvailability === undefined;
+
+  const inventoryLabel = isInventoryLoading
+    ? 'Checking inventory…'
+    : isOutOfStock
+      ? 'Sold Out'
+      : typeof remainingStock === 'number'
+        ? `${remainingStock} Left In Stock`
+        : undefined;
+
+  const inventoryTone: 'muted' | 'warning' | 'danger' =
+    isOutOfStock || remainingStock === 0
+      ? 'danger'
+      : typeof remainingStock === 'number' && remainingStock <= 5
+        ? 'warning'
+        : 'muted';
 
   const handleAddToCart = () => {
+    if (isOutOfStock) {
+      toast.info('This item is currently sold out.');
+      return;
+    }
+
+    if (typeof quantityAvailable === 'number' && quantityInCart >= quantityAvailable) {
+      toast.info('You have added the maximum available quantity.');
+      return;
+    }
+
     addItem({
       id: product.id,
       name: product.name,
@@ -67,6 +112,10 @@ export function ShopGrid() {
             price={product.price}
             image={product.image}
             badge={product.badge}
+            stockLeft={remainingStock}
+            isOutOfStock={isOutOfStock}
+            inventoryLabel={inventoryLabel}
+            inventoryTone={inventoryTone}
             onAddToCart={handleAddToCart}
           />
         </div>

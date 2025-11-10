@@ -6,6 +6,7 @@ import { ImageWithFallback } from './figma/ImageWithFallback';
 import { toast } from 'sonner@2.0.3';
 import { cn } from './ui/utils';
 import { createShopifyCheckout } from '../lib/shopify';
+import { useVariantAvailability } from '../hooks/useVariantAvailability';
 
 const currency = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -14,12 +15,29 @@ const currency = new Intl.NumberFormat('en-US', {
 
 const DESKTOP_HEADER_OFFSET = 72; // px roughly matches header height
 const COMPACT_HEIGHT_BREAKPOINT = 540; // screens shorter than this need mobile layout safeguards
+const PRODUCT_HANDLE = import.meta.env.VITE_SHOPIFY_PRODUCT_HANDLE ?? '';
 
 export function CartDrawer() {
-  const { items, isOpen, closeCart, updateQuantity, removeItem, total, clearCart } = useCart();
+  const {
+    items,
+    isOpen,
+    closeCart,
+    updateQuantity,
+    removeItem,
+    total,
+    clearCart,
+    getVariantQuantity,
+  } = useCart();
   const [isMobile, setIsMobile] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(0);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
+  const variantIds = useMemo(
+    () => Array.from(new Set(items.map((item) => item.shopifyVariantId))),
+    [items]
+  );
+  const availabilityMap = useVariantAvailability(variantIds, {
+    productHandle: PRODUCT_HANDLE || undefined,
+  });
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -74,6 +92,24 @@ export function CartDrawer() {
   const handleCheckout = async () => {
     if (!items.length) {
       toast.info('Add something to the cart first.');
+      return;
+    }
+
+    const oversoldItem = items.find((item) => {
+      const availability = availabilityMap[item.shopifyVariantId];
+      if (!availability) return false;
+      if (availability.availableForSale === false) return true;
+      if (typeof availability.quantityAvailable !== 'number') return false;
+      return item.quantity > availability.quantityAvailable;
+    });
+    if (oversoldItem) {
+      const availability = availabilityMap[oversoldItem.shopifyVariantId];
+      const availableQty = availability?.quantityAvailable ?? 0;
+      toast.error(
+        availableQty > 0
+          ? `Only ${availableQty} units of ${oversoldItem.name} are available.`
+          : `${oversoldItem.name} is no longer available.`
+      );
       return;
     }
 
@@ -190,59 +226,98 @@ export function CartDrawer() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {items.map((item) => (
-                    <div
-                      key={item.id}
-                      className="grid grid-cols-[110px_1fr] gap-5 rounded-3xl bg-white/90 p-5 shadow-2xl shadow-black/10 dark:bg-zinc-900/80"
-                    >
-                      <div className="relative overflow-hidden rounded-2xl bg-black/5 p-3 dark:bg-white/5">
-                        <ImageWithFallback
-                          src={item.image}
-                          alt={item.name}
-                          className="h-28 w-full rounded-xl object-cover"
-                        />
-                      </div>
-                      <div className="flex flex-col justify-between">
-                        <div className="space-y-1.5">
-                          <p className="text-sm font-medium uppercase tracking-[0.25em] text-black dark:text-white">
-                            {item.name}
-                          </p>
-                          <p className="text-sm font-semibold">{currency.format(item.price)}</p>
+                  {items.map((item) => {
+                    const availability = availabilityMap[item.shopifyVariantId];
+                    const quantityAvailable = availability?.quantityAvailable ?? null;
+                    const quantityInCart = getVariantQuantity(item.shopifyVariantId);
+                    const remainingStock =
+                      typeof quantityAvailable === 'number'
+                        ? Math.max(quantityAvailable - quantityInCart, 0)
+                        : undefined;
+                    const isOutOfStock =
+                      availability?.availableForSale === false ||
+                      (typeof quantityAvailable === 'number' && quantityAvailable <= quantityInCart);
+                    const isLowStock =
+                      typeof remainingStock === 'number' && remainingStock <= 5 && remainingStock > 0;
+                    const isInventoryLoading = availability === undefined;
+                    const inventoryLabel = isInventoryLoading
+                      ? 'Checking inventory…'
+                      : isOutOfStock
+                        ? 'Sold Out'
+                        : typeof remainingStock === 'number'
+                          ? `${remainingStock} Left`
+                          : undefined;
+                    return (
+                      <div
+                        key={item.id}
+                        className="grid grid-cols-[110px_1fr] gap-5 rounded-3xl bg-white/90 p-5 shadow-2xl shadow-black/10 dark:bg-zinc-900/80"
+                      >
+                        <div className="relative overflow-hidden rounded-2xl bg-black/5 p-3 dark:bg-white/5">
+                          <ImageWithFallback
+                            src={item.image}
+                            alt={item.name}
+                            className="h-28 w-full rounded-xl object-cover"
+                          />
                         </div>
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="flex items-center gap-3">
+                        <div className="flex flex-col justify-between">
+                          <div className="space-y-1.5">
+                            <p className="text-sm font-medium uppercase tracking-[0.25em] text-black dark:text-white">
+                              {item.name}
+                            </p>
+                            <p className="text-sm font-semibold">{currency.format(item.price)}</p>
+                            {inventoryLabel && (
+                              <p
+                                className={`text-xs uppercase tracking-[0.25em] ${
+                                  isOutOfStock
+                                    ? 'text-red-600'
+                                    : isLowStock
+                                      ? 'text-amber-600'
+                                      : 'text-black/60 dark:text-white/60'
+                                }`}
+                              >
+                                {inventoryLabel}
+                              </p>
+                            )}
+                          </div>
+                          <div className="mt-3 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
+                                aria-label="Decrease quantity"
+                              >
+                                <Minus className="h-4 w-4" />
+                              </button>
+                              <span className="min-w-[2ch] text-center text-sm font-semibold">
+                                {item.quantity}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white disabled:opacity-40 disabled:cursor-not-allowed dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
+                                aria-label="Increase quantity"
+                                disabled={
+                                  isOutOfStock ||
+                                  (typeof quantityAvailable === 'number' && item.quantity >= quantityAvailable)
+                                }
+                              >
+                                <Plus className="h-4 w-4" />
+                              </button>
+                            </div>
                             <button
                               type="button"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
-                              aria-label="Decrease quantity"
+                              onClick={() => removeItem(item.id)}
+                              className="flex h-9 w-9 items-center justify-center rounded-full text-black/40 transition hover:text-black dark:text-white/40 dark:hover:text-white"
+                              aria-label="Remove item"
                             >
-                              <Minus className="h-4 w-4" />
-                            </button>
-                            <span className="min-w-[2ch] text-center text-sm font-semibold">
-                              {item.quantity}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => removeItem(item.id)}
-                            className="flex h-9 w-9 items-center justify-center rounded-full text-black/40 transition hover:text-black dark:text-white/40 dark:hover:text-white"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
