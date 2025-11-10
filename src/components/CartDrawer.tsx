@@ -5,6 +5,7 @@ import { useCart } from '../contexts/CartContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 import { toast } from 'sonner@2.0.3';
 import { cn } from './ui/utils';
+import { createShopifyCheckout } from '../lib/shopify';
 
 const currency = new Intl.NumberFormat('en-US', {
   style: 'currency',
@@ -12,27 +13,86 @@ const currency = new Intl.NumberFormat('en-US', {
 });
 
 const DESKTOP_HEADER_OFFSET = 72; // px roughly matches header height
+const COMPACT_HEIGHT_BREAKPOINT = 540; // screens shorter than this need mobile layout safeguards
 
 export function CartDrawer() {
   const { items, isOpen, closeCart, updateQuantity, removeItem, total, clearCart } = useCart();
   const [isMobile, setIsMobile] = useState(false);
+  const [viewportHeight, setViewportHeight] = useState(0);
+  const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    if (typeof window === 'undefined') return undefined;
+
+    const updateLayout = () => {
+      const visualViewport = window.visualViewport;
+      const currentWidth = visualViewport?.width ?? window.innerWidth;
+      const currentHeight = visualViewport?.height ?? window.innerHeight;
+
+      setIsMobile(currentWidth < 768 || currentHeight < COMPACT_HEIGHT_BREAKPOINT);
+      setViewportHeight(currentHeight);
+    };
+
+    updateLayout();
+    window.addEventListener('resize', updateLayout);
+
+    const visualViewport = window.visualViewport;
+    visualViewport?.addEventListener('resize', updateLayout);
+    visualViewport?.addEventListener('scroll', updateLayout);
+
+    return () => {
+      window.removeEventListener('resize', updateLayout);
+      visualViewport?.removeEventListener('resize', updateLayout);
+      visualViewport?.removeEventListener('scroll', updateLayout);
+    };
   }, []);
 
-  const handleCheckout = () => {
+  const drawerHeightPx = useMemo(() => {
+    if (!viewportHeight) return null;
+    if (isMobile) {
+      const available = Math.min(viewportHeight * 0.92, viewportHeight - 16);
+      return Math.max(0, Math.round(available));
+    }
+
+    return Math.max(0, Math.round(viewportHeight - DESKTOP_HEADER_OFFSET));
+  }, [isMobile, viewportHeight]);
+
+  const drawerHeightValue =
+    drawerHeightPx !== null
+      ? `${drawerHeightPx}px`
+      : isMobile
+        ? '85vh'
+        : `calc(100vh - ${DESKTOP_HEADER_OFFSET}px)`;
+
+  const drawerMaxHeight = isMobile
+    ? 'calc(100dvh - env(safe-area-inset-top, 0px))'
+    : `calc(100dvh - ${DESKTOP_HEADER_OFFSET}px)`;
+
+  const shouldEnableDrawerScroll =
+    drawerHeightPx !== null && drawerHeightPx < COMPACT_HEIGHT_BREAKPOINT;
+
+  const handleCheckout = async () => {
     if (!items.length) {
       toast.info('Add something to the cart first.');
       return;
     }
 
-    toast.success('Checkout complete. Thanks for supporting Aspenova Club.');
-    clearCart();
-    closeCart();
+    try {
+      setIsProcessingCheckout(true);
+      const checkoutUrl = await createShopifyCheckout(items);
+      toast.success('Redirecting you to Shopify checkout...');
+      clearCart();
+      window.location.assign(checkoutUrl);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Unable to start checkout. Please try again.';
+      toast.error(message);
+      console.error('[Checkout] Failed to create Shopify checkout', error);
+    } finally {
+      setIsProcessingCheckout(false);
+    }
   };
 
   const handleShopClick = () => {
@@ -51,6 +111,8 @@ export function CartDrawer() {
 
   const hasItems = items.length > 0;
 
+  const checkoutPaddingBottom = isMobile ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' : undefined;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -67,6 +129,7 @@ export function CartDrawer() {
             className={cn(
               'fixed z-50 flex flex-col bg-white/90 text-black shadow-[0_40px_120px_rgba(0,0,0,0.45)] backdrop-blur-2xl',
               'dark:bg-zinc-900/90 dark:text-white',
+              shouldEnableDrawerScroll ? 'overflow-y-auto' : 'overflow-hidden',
               isMobile
                 ? 'bottom-0 left-0 right-0 rounded-t-[32px]'
                 : 'right-0 border-l border-black/10 dark:border-white/10'
@@ -74,7 +137,8 @@ export function CartDrawer() {
             style={{
               width: isMobile ? '100%' : 'clamp(320px, 33vw, 480px)',
               top: isMobile ? undefined : `${DESKTOP_HEADER_OFFSET}px`,
-              height: isMobile ? '85vh' : `calc(100vh - ${DESKTOP_HEADER_OFFSET}px)`,
+              height: drawerHeightValue,
+              maxHeight: drawerMaxHeight,
             }}
             initial="hidden"
             animate="visible"
@@ -99,7 +163,12 @@ export function CartDrawer() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-6">
+            <div
+              className={cn(
+                'flex-1 px-6 py-6',
+                shouldEnableDrawerScroll ? 'overflow-visible' : 'overflow-y-auto'
+              )}
+            >
               {!hasItems ? (
                 <div className="flex h-full flex-col items-center justify-center gap-5 text-center text-black/60 dark:text-white/60">
                   <div className="flex h-28 w-28 aspect-square items-center justify-center rounded-full border border-dashed border-black/15 bg-black/5 text-black/40 dark:border-white/20 dark:bg-white/5 dark:text-white/50">
@@ -178,7 +247,10 @@ export function CartDrawer() {
               )}
             </div>
 
-            <div className="space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10">
+            <div
+              className="space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10"
+              style={{ paddingBottom: checkoutPaddingBottom }}
+            >
               <div className="flex items-center justify-between text-black dark:text-white">
                 <span className="text-xs uppercase tracking-[0.35em] text-black/60 dark:text-white/60">
                   Subtotal
@@ -190,8 +262,8 @@ export function CartDrawer() {
               </p>
               <button
                 type="button"
-                onClick={hasItems ? handleCheckout : handleShopClick}
-                disabled={!hasItems}
+                onClick={hasItems && !isProcessingCheckout ? handleCheckout : handleShopClick}
+                disabled={!hasItems || isProcessingCheckout}
                 className={cn(
                   'w-full rounded-full px-6 py-6 text-xs font-semibold uppercase tracking-[0.4em] transition',
                   hasItems
@@ -199,7 +271,7 @@ export function CartDrawer() {
                     : 'bg-zinc-200 text-black'
                 )}
               >
-                {hasItems ? 'Checkout' : 'Empty'}
+                {hasItems ? (isProcessingCheckout ? 'Redirecting…' : 'Checkout') : 'Empty'}
               </button>
               <p className="text-center text-[11px] uppercase tracking-[0.4em] text-black/80 dark:text-white">
                 Free shipping over $75

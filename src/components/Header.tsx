@@ -1,12 +1,44 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ShoppingCart, Menu, X } from 'lucide-react';
 import logoImage from './images/logoImage.svg';
+import mobileLogo from './images/blackLogo.png';
 import { useCart } from '../contexts/CartContext';
+import { ImageWithFallback } from './figma/ImageWithFallback';
+
+const MOBILE_HEADER_BREAKPOINT = 768;
+const COMPACT_HEIGHT_BREAKPOINT = 540;
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCompactLogo, setIsCompactLogo] = useState(false);
   const { openCart, itemCount } = useCart();
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+
+    const updateLogoVariant = () => {
+      const viewport = window.visualViewport;
+      const width = viewport?.width ?? window.innerWidth;
+      const height = viewport?.height ?? window.innerHeight;
+
+      setIsCompactLogo(width < MOBILE_HEADER_BREAKPOINT || height < COMPACT_HEIGHT_BREAKPOINT);
+    };
+
+    updateLogoVariant();
+    window.addEventListener('resize', updateLogoVariant);
+    const visualViewport = window.visualViewport;
+    visualViewport?.addEventListener('resize', updateLogoVariant);
+    visualViewport?.addEventListener('scroll', updateLogoVariant);
+
+    return () => {
+      window.removeEventListener('resize', updateLogoVariant);
+      visualViewport?.removeEventListener('resize', updateLogoVariant);
+      visualViewport?.removeEventListener('scroll', updateLogoVariant);
+    };
+  }, []);
+
+  const logoSrc = isCompactLogo ? mobileLogo : logoImage;
 
   const scrollToSection = (id: string) => {
     const section = document.getElementById(id);
@@ -32,7 +64,11 @@ export function Header() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
-            <img src={logoImage} alt="Aspenova Logo" className="w-16 h-16 md:w-7 md:h-7" />
+            <ImageWithFallback
+              src={logoSrc}
+              alt="Aspenova logo"
+              className="w-16 h-16 shrink-0 md:w-7 md:h-7"
+            />
             ASPENOVA
           </motion.button>
 

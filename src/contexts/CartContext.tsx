@@ -7,6 +7,7 @@ export interface CartItem {
   image: string;
   quantity: number;
   color?: string;
+  shopifyVariantId?: string;
 }
 
 interface CartContextValue {

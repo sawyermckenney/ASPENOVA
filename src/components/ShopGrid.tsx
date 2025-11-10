@@ -4,12 +4,15 @@ import { toast } from 'sonner@2.0.3';
 import hatLogo from './images/productImages/hatLogo.JPG';
 import { useCart } from '../contexts/CartContext';
 
+const DEFAULT_VARIANT_ID = import.meta.env.VITE_SHOPIFY_PRIMARY_VARIANT_ID ?? '';
+
 const product = {
   id: 1,
   name: 'The Aspen — Black',
   price: 39.99,
   image: hatLogo,
   badge: 'DROP 01',
+  shopifyVariantId: DEFAULT_VARIANT_ID,
 };
 
 export function ShopGrid() {
@@ -22,6 +25,7 @@ export function ShopGrid() {
       price: product.price,
       image: product.image,
       color: 'Snowfield / Onyx',
+      shopifyVariantId: product.shopifyVariantId,
     });
     toast.success(`${product.name} added to cart`);
   };
