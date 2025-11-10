@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ShoppingCart, Menu, X } from 'lucide-react';
 import logoImage from './images/logoImage.svg';
+import { useCart } from '../contexts/CartContext';
 
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { openCart, itemCount } = useCart();
 
   const scrollToSection = (id: string) => {
     const section = document.getElementById(id);
@@ -46,6 +48,7 @@ export function Header() {
             </motion.button>
 
             <motion.button
+              type="button"
               className="p-2 text-black transition-colors hover:text-zinc-600"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
@@ -55,16 +58,19 @@ export function Header() {
             </motion.button>
 
             <motion.button
+              type="button"
+              onClick={openCart}
               className="p-2 text-black transition-colors hover:text-zinc-600 relative"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               aria-label="Shopping Cart"
             >
               <ShoppingCart size={20} />
-              {/* Cart count badge - optional */}
-              {/* <span className="absolute -top-1 -right-1 bg-black text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                0
-              </span> */}
+              {itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
+                  {itemCount}
+                </span>
+              )}
             </motion.button>
           </nav>
 
@@ -102,6 +108,7 @@ export function Header() {
 
               <div className="flex gap-6 pt-4 border-t border-black/10">
                 <motion.button
+                  type="button"
                   className="p-2 text-black transition-colors hover:text-zinc-600"
                   whileTap={{ scale: 0.9 }}
                   aria-label="Search"
@@ -110,11 +117,21 @@ export function Header() {
                 </motion.button>
 
                 <motion.button
-                  className="p-2 text-black transition-colors hover:text-zinc-600"
+                  type="button"
+                  onClick={() => {
+                    openCart();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="p-2 text-black transition-colors hover:text-zinc-600 relative"
                   whileTap={{ scale: 0.9 }}
                   aria-label="Shopping Cart"
                 >
                   <ShoppingCart size={22} />
+                  {itemCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
+                      {itemCount}
+                    </span>
+                  )}
                 </motion.button>
               </div>
             </nav>

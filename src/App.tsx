@@ -5,6 +5,7 @@ import { ProductSpotlight } from './components/ProductSpotlight';
 import { AboutSection } from './components/AboutSection';
 import { Footer } from './components/Footer';
 import { Toaster } from './components/ui/sonner';
+import { CartDrawer } from './components/CartDrawer';
 
 export default function App() {
   const scrollToShop = () => {
@@ -17,10 +18,13 @@ export default function App() {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <Hero onShopClick={scrollToShop} />
-      <ShopGrid />
-      <ProductSpotlight />
-      <AboutSection />
+      <CartDrawer />
+      <main className="pt-20">
+        <Hero onShopClick={scrollToShop} />
+        <ShopGrid />
+        <ProductSpotlight />
+        <AboutSection />
+      </main>
       <Footer />
       <Toaster position="bottom-right" />
     </div>

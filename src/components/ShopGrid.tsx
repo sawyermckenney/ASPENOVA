@@ -1,7 +1,8 @@
 import { motion } from 'motion/react';
 import { ProductCard } from './ProductCard';
 import { toast } from 'sonner@2.0.3';
-import hatLogo from './images/productImages/hatLogo.JPG';    
+import hatLogo from './images/productImages/hatLogo.JPG';
+import { useCart } from '../contexts/CartContext';
 
 const product = {
   id: 1,
@@ -12,8 +13,17 @@ const product = {
 };
 
 export function ShopGrid() {
-  const handleAddToCart = (productName: string) => {
-    toast.success(`${productName} added to cart`);
+  const { addItem } = useCart();
+
+  const handleAddToCart = () => {
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      color: 'Snowfield / Onyx',
+    });
+    toast.success(`${product.name} added to cart`);
   };
 
   return (
@@ -53,7 +63,7 @@ export function ShopGrid() {
             price={product.price}
             image={product.image}
             badge={product.badge}
-            onAddToCart={() => handleAddToCart(product.name)}
+            onAddToCart={handleAddToCart}
           />
         </div>
 
