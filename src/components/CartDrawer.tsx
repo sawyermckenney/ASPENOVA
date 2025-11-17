@@ -31,7 +31,6 @@ export function CartDrawer() {
   const [isMobile, setIsMobile] = useState(false);
   const [viewportHeight, setViewportHeight] = useState(0);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
-  const checkoutSectionRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const variantIds = useMemo(
     () => Array.from(new Set(items.map((item) => item.shopifyVariantId))),
@@ -67,6 +66,41 @@ export function CartDrawer() {
     };
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof document === 'undefined') {
+      return undefined;
+    }
+
+    if (!isOpen) {
+      return undefined;
+    }
+
+    const { body, documentElement } = document;
+    const scrollY = window.scrollY;
+    const previousBodyStyle = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    const previousHtmlOverflow = documentElement.style.overflow;
+
+    documentElement.style.overflow = 'hidden';
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.top = `-${scrollY}px`;
+    body.style.width = '100%';
+
+    return () => {
+      documentElement.style.overflow = previousHtmlOverflow;
+      body.style.overflow = previousBodyStyle.overflow;
+      body.style.position = previousBodyStyle.position;
+      body.style.top = previousBodyStyle.top;
+      body.style.width = previousBodyStyle.width;
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOpen]);
+
   const drawerHeightPx = useMemo(() => {
     if (!viewportHeight) return null;
     if (isMobile) {
@@ -89,7 +123,6 @@ export function CartDrawer() {
     : `calc(100dvh - ${DESKTOP_HEADER_OFFSET}px)`;
 
   const isCompactHeight = drawerHeightPx !== null && drawerHeightPx < COMPACT_HEIGHT_BREAKPOINT;
-  const shouldStickCheckout = isMobile || isCompactHeight;
 
   const findUnavailableCartItem = () =>
     items.find((item) => {
@@ -169,27 +202,18 @@ export function CartDrawer() {
   const hasUnavailableItems = Boolean(blockingCartItem);
   const checkoutDisabled = !hasItems || isProcessingCheckout || hasUnavailableItems;
 
-  const checkoutPaddingBottom = isMobile ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' : undefined;
+  const safeAreaInset = 'env(safe-area-inset-bottom, 0px)';
+  const checkoutPaddingBottom = isMobile ? `calc(1.5rem + ${safeAreaInset})` : undefined;
 
   const handleScrollToCheckout = () => {
-    const checkoutNode = checkoutSectionRef.current;
-    if (!checkoutNode) return;
-
     const scrollContainer = scrollAreaRef.current;
-    if (scrollContainer) {
-      const containerRect = scrollContainer.getBoundingClientRect();
-      const checkoutRect = checkoutNode.getBoundingClientRect();
-      const offset = checkoutRect.top - containerRect.top + scrollContainer.scrollTop;
+    if (!scrollContainer) return;
 
-      if (typeof scrollContainer.scrollTo === 'function') {
-        scrollContainer.scrollTo({ top: offset, behavior: 'smooth' });
-      } else {
-        scrollContainer.scrollTop = offset;
-      }
-      return;
+    if (typeof scrollContainer.scrollTo === 'function') {
+      scrollContainer.scrollTo({ top: scrollContainer.scrollHeight, behavior: 'smooth' });
+    } else {
+      scrollContainer.scrollTop = scrollContainer.scrollHeight;
     }
-
-    checkoutNode.scrollIntoView({ behavior: 'smooth', block: 'end' });
   };
 
   return (
@@ -225,18 +249,14 @@ export function CartDrawer() {
             transition={{ type: 'tween', duration: 0.35 }}
           >
             <div className="flex h-full flex-col">
-              <div className="flex items-center justify-between px-6 py-6 border-b border-black/10 dark:border-white/10">
-                <div className="space-y-1">
-                  <p className="text-[11px] tracking-[0.4em] uppercase text-black/60 dark:text-white/60">
-                    Aspenova Club
-                  </p>
-                  <h3 className="text-2xl tracking-[0.15em]">Your Cart</h3>
-                </div>
+              <div className="flex items-center justify-between px-6 py-3 border-b border-black/10 dark:border-white/10">
+                <h3 className="text-base font-semibold tracking-wide">Your Cart</h3>
                 <button
                   type="button"
                   onClick={closeCart}
-                  className="flex h-10 w-10 items-center justify-center rounded-full border border-black/15 text-black transition hover:bg-white/60 dark:border-white/20 dark:hover:bg-white/10"
+                  className="flex items-center justify-center h-8 w-8 rounded-full border border-black/15 text-black hover:bg-white/60 dark:border-white/20 dark:hover:bg-white/10 p-0"
                   aria-label="Close cart"
+                  style={{ aspectRatio: "1 / 1" }}
                 >
                   <X className="h-5 w-5" />
                 </button>
@@ -260,28 +280,28 @@ export function CartDrawer() {
                 style={{ WebkitOverflowScrolling: 'touch' }}
               >
                 <div className="px-6 py-6">
-              {!hasItems ? (
-                <div className="flex h-full flex-col items-center justify-center gap-5 text-center text-black/60 dark:text-white/60">
-                  <div className="flex h-28 w-28 aspect-square items-center justify-center rounded-full border border-dashed border-black/15 bg-black/5 text-black/40 dark:border-white/20 dark:bg-white/5 dark:text-white/50">
-                    <ShoppingBag className="h-8 w-8" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-lg tracking-[0.3em] uppercase">Cart Empty</p>
-                    <p className="text-sm text-black/50 dark:text-white/50">
-                      Drop 01 awaits—add a piece and elevate the fit.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleShopClick}
-                    className="rounded-full border border-black bg-black px-8 py-3 text-[11px] font-semibold uppercase tracking-[0.4em] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-black/90 active:translate-y-0 dark:border-white dark:bg-white dark:text-black dark:hover:bg-white/90"
-                  >
-                    Shop the Drop
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-6">
-                  {items.map((item) => {
+                  {!hasItems ? (
+                    <div className="flex h-full flex-col items-center justify-center gap-5 text-center text-black/60 dark:text-white/60">
+                      <div className="flex h-28 w-28 aspect-square items-center justify-center rounded-full border border-dashed border-black/15 bg-black/5 text-black/40 dark:border-white/20 dark:bg-white/5 dark:text-white/50">
+                        <ShoppingBag className="h-8 w-8" />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-lg tracking-[0.3em] uppercase">Cart Empty</p>
+                        <p className="text-sm text-black/50 dark:text-white/50">
+                          Drop 01 awaits—add a piece and elevate the fit.
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleShopClick}
+                        className="rounded-full border border-black bg-black px-8 py-3 text-[11px] font-semibold uppercase tracking-[0.4em] text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-black/90 active:translate-y-0 dark:border-white dark:bg-white dark:text-black dark:hover:bg-white/90"
+                      >
+                        Shop the Drop
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {items.map((item) => {
                     const availability = availabilityMap[item.shopifyVariantId];
                     const quantityAvailable = availability?.quantityAvailable ?? null;
                     const quantityInCart = getVariantQuantity(item.shopifyVariantId);
@@ -375,57 +395,57 @@ export function CartDrawer() {
                         </div>
                       </div>
                     );
-                  })}
+                      })}
+                    </div>
+                  )}
                 </div>
-              )}
-                </div>
+              </div>
 
-                <div
-                  ref={checkoutSectionRef}
-                  className={cn(
-                    'space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10',
-                    shouldStickCheckout &&
-                      'sticky bottom-0 z-10 bg-white/95 backdrop-blur-xl shadow-[0_-12px_45px_rgba(0,0,0,0.25)] dark:bg-zinc-900/95'
-                  )}
-                  style={{ paddingBottom: checkoutPaddingBottom }}
-                >
-                  <div className="flex items-center justify-between text-black dark:text-white">
-                    <span className="text-xs uppercase tracking-[0.35em] text-black/60 dark:text-white/60">
-                      Subtotal
-                    </span>
-                    <span className="text-2xl tracking-[0.2em]">{currency.format(total)}</span>
-                  </div>
-                  <p className="text-xs text-black/50 tracking-[0.25em] dark:text-white/50">
-                    Taxes calculated at checkout
-                  </p>
-                  <button
-                    type="button"
-                    onClick={hasItems && !isProcessingCheckout ? handleCheckout : handleShopClick}
-                    disabled={checkoutDisabled}
-                    className={cn(
-                      'w-full rounded-full px-6 py-6 text-xs font-semibold uppercase tracking-[0.4em] transition',
-                      hasItems && !hasUnavailableItems
-                        ? 'bg-black text-white shadow-[0_15px_40px_rgba(0,0,0,0.45)] hover:bg-black/90'
-                        : 'bg-zinc-200 text-black'
-                    )}
-                  >
-                    {hasItems
-                      ? hasUnavailableItems
-                        ? 'Unavailable'
-                        : isProcessingCheckout
-                          ? 'Redirecting…'
-                          : 'Checkout'
-                      : 'Empty'}
-                  </button>
-                  {hasUnavailableItems && (
-                    <p className="text-center text-[11px] uppercase tracking-[0.35em] text-red-600">
-                      Remove {blockingCartItem?.name ?? 'unavailable items'} to checkout
-                    </p>
-                  )}
-                  <p className="text-center text-[11px] uppercase tracking-[0.4em] text-black/80 dark:text-white">
-                    Free shipping over $75
-                  </p>
+              <div
+                className={cn(
+                  'space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10',
+                  'bg-white/95 backdrop-blur-xl shadow-[0_-12px_45px_rgba(0,0,0,0.25)] dark:bg-zinc-900/95'
+                )}
+                style={{
+                  paddingBottom: checkoutPaddingBottom,
+                }}
+              >
+                <div className="flex items-center justify-between text-black dark:text-white">
+                  <span className="text-xs uppercase tracking-[0.35em] text-black/60 dark:text-white/60">
+                    Subtotal
+                  </span>
+                  <span className="text-2xl tracking-[0.2em]">{currency.format(total)}</span>
                 </div>
+                <p className="text-xs text-black/50 tracking-[0.25em] dark:text-white/50">
+                  Taxes calculated at checkout
+                </p>
+                <button
+                  type="button"
+                  onClick={hasItems && !isProcessingCheckout ? handleCheckout : handleShopClick}
+                  disabled={checkoutDisabled}
+                  className={cn(
+                    'w-full rounded-full px-6 py-6 text-xs font-semibold uppercase tracking-[0.4em] transition',
+                    hasItems && !hasUnavailableItems
+                      ? 'bg-black text-white shadow-[0_15px_40px_rgba(0,0,0,0.45)] hover:bg-black/90'
+                      : 'bg-zinc-200 text-black'
+                  )}
+                >
+                  {hasItems
+                    ? hasUnavailableItems
+                      ? 'Unavailable'
+                      : isProcessingCheckout
+                        ? 'Redirecting…'
+                        : 'Checkout'
+                    : 'Empty'}
+                </button>
+                {hasUnavailableItems && (
+                  <p className="text-center text-[11px] uppercase tracking-[0.35em] text-red-600">
+                    Remove {blockingCartItem?.name ?? 'unavailable items'} to checkout
+                  </p>
+                )}
+                <p className="text-center text-[11px] uppercase tracking-[0.4em] text-black/80 dark:text-white">
+                  Free shipping over $75
+                </p>
               </div>
             </div>
           </motion.aside>
