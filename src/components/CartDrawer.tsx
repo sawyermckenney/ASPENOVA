@@ -32,6 +32,7 @@ export function CartDrawer() {
   const [viewportHeight, setViewportHeight] = useState(0);
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
   const checkoutSectionRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
   const variantIds = useMemo(
     () => Array.from(new Set(items.map((item) => item.shopifyVariantId))),
     [items]
@@ -87,12 +88,29 @@ export function CartDrawer() {
     ? 'calc(100dvh - env(safe-area-inset-top, 0px))'
     : `calc(100dvh - ${DESKTOP_HEADER_OFFSET}px)`;
 
-  const shouldEnableDrawerScroll =
-    drawerHeightPx !== null && drawerHeightPx < COMPACT_HEIGHT_BREAKPOINT;
+  const isCompactHeight = drawerHeightPx !== null && drawerHeightPx < COMPACT_HEIGHT_BREAKPOINT;
+  const shouldStickCheckout = isMobile || isCompactHeight;
+
+  const findUnavailableCartItem = () =>
+    items.find((item) => {
+      const availability = availabilityMap[item.shopifyVariantId];
+      if (!availability) return false;
+      if (availability.availableForSale === false) return true;
+      if (typeof availability.quantityAvailable === 'number') {
+        return availability.quantityAvailable < item.quantity;
+      }
+      return false;
+    });
 
   const handleCheckout = async () => {
     if (!items.length) {
       toast.info('Add something to the cart first.');
+      return;
+    }
+
+    const unavailableCartItem = findUnavailableCartItem();
+    if (unavailableCartItem) {
+      toast.error(`${unavailableCartItem.name} is not available yet. Remove it to continue.`);
       return;
     }
 
@@ -147,11 +165,31 @@ export function CartDrawer() {
   );
 
   const hasItems = items.length > 0;
+  const blockingCartItem = findUnavailableCartItem();
+  const hasUnavailableItems = Boolean(blockingCartItem);
+  const checkoutDisabled = !hasItems || isProcessingCheckout || hasUnavailableItems;
 
   const checkoutPaddingBottom = isMobile ? 'calc(1.5rem + env(safe-area-inset-bottom, 0px))' : undefined;
 
   const handleScrollToCheckout = () => {
-    checkoutSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    const checkoutNode = checkoutSectionRef.current;
+    if (!checkoutNode) return;
+
+    const scrollContainer = scrollAreaRef.current;
+    if (scrollContainer) {
+      const containerRect = scrollContainer.getBoundingClientRect();
+      const checkoutRect = checkoutNode.getBoundingClientRect();
+      const offset = checkoutRect.top - containerRect.top + scrollContainer.scrollTop;
+
+      if (typeof scrollContainer.scrollTo === 'function') {
+        scrollContainer.scrollTo({ top: offset, behavior: 'smooth' });
+      } else {
+        scrollContainer.scrollTop = offset;
+      }
+      return;
+    }
+
+    checkoutNode.scrollIntoView({ behavior: 'smooth', block: 'end' });
   };
 
   return (
@@ -168,9 +206,8 @@ export function CartDrawer() {
 
           <motion.aside
             className={cn(
-              'fixed z-50 flex flex-col bg-white/90 text-black shadow-[0_40px_120px_rgba(0,0,0,0.45)] backdrop-blur-2xl',
+              'fixed z-50 flex flex-col overflow-hidden bg-white/90 text-black shadow-[0_40px_120px_rgba(0,0,0,0.45)] backdrop-blur-2xl',
               'dark:bg-zinc-900/90 dark:text-white',
-              shouldEnableDrawerScroll ? 'overflow-y-auto' : 'overflow-hidden',
               isMobile
                 ? 'bottom-0 left-0 right-0 rounded-t-[32px]'
                 : 'right-0 border-l border-black/10 dark:border-white/10'
@@ -187,41 +224,42 @@ export function CartDrawer() {
             variants={panelVariants}
             transition={{ type: 'tween', duration: 0.35 }}
           >
-            <div className="flex items-center justify-between px-6 py-6 border-b border-black/10 dark:border-white/10">
-              <div className="space-y-1">
-                <p className="text-[11px] tracking-[0.4em] uppercase text-black/60 dark:text-white/60">
-                  Aspenova Club
-                </p>
-                <h3 className="text-2xl tracking-[0.15em]">Your Cart</h3>
-              </div>
-              <button
-                type="button"
-                onClick={closeCart}
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-black/15 text-black transition hover:bg-white/60 dark:border-white/20 dark:hover:bg-white/10"
-                aria-label="Close cart"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {hasItems && shouldEnableDrawerScroll && (
-              <div className="px-6 py-3 text-right">
+            <div className="flex h-full flex-col">
+              <div className="flex items-center justify-between px-6 py-6 border-b border-black/10 dark:border-white/10">
+                <div className="space-y-1">
+                  <p className="text-[11px] tracking-[0.4em] uppercase text-black/60 dark:text-white/60">
+                    Aspenova Club
+                  </p>
+                  <h3 className="text-2xl tracking-[0.15em]">Your Cart</h3>
+                </div>
                 <button
                   type="button"
-                  onClick={handleScrollToCheckout}
-                  className="text-[11px] uppercase tracking-[0.3em] text-black/70 transition hover:text-black dark:text-white/70 dark:hover:text-white"
+                  onClick={closeCart}
+                  className="flex h-10 w-10 items-center justify-center rounded-full border border-black/15 text-black transition hover:bg-white/60 dark:border-white/20 dark:hover:bg-white/10"
+                  aria-label="Close cart"
                 >
-                  Scroll to Checkout ↓
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-            )}
 
-            <div
-              className={cn(
-                'flex-1 px-6 py-6',
-                shouldEnableDrawerScroll ? 'overflow-visible' : 'overflow-y-auto'
+              {hasItems && isCompactHeight && (
+                <div className="px-6 py-3 text-right">
+                  <button
+                    type="button"
+                    onClick={handleScrollToCheckout}
+                    className="text-[11px] uppercase tracking-[0.3em] text-black/70 transition hover:text-black dark:text-white/70 dark:hover:text-white"
+                  >
+                    Scroll to Checkout ↓
+                  </button>
+                </div>
               )}
-            >
+
+              <div
+                ref={scrollAreaRef}
+                className="flex-1 overflow-y-auto"
+                style={{ WebkitOverflowScrolling: 'touch' }}
+              >
+                <div className="px-6 py-6">
               {!hasItems ? (
                 <div className="flex h-full flex-col items-center justify-center gap-5 text-center text-black/60 dark:text-white/60">
                   <div className="flex h-28 w-28 aspect-square items-center justify-center rounded-full border border-dashed border-black/15 bg-black/5 text-black/40 dark:border-white/20 dark:bg-white/5 dark:text-white/50">
@@ -254,6 +292,7 @@ export function CartDrawer() {
                     const isOutOfStock =
                       availability?.availableForSale === false ||
                       (typeof quantityAvailable === 'number' && quantityAvailable <= quantityInCart);
+                    const quantityControlsDisabled = availability?.availableForSale === false;
                     const isLowStock =
                       typeof remainingStock === 'number' && remainingStock <= 5 && remainingStock > 0;
                     const isInventoryLoading = availability === undefined;
@@ -301,8 +340,9 @@ export function CartDrawer() {
                               <button
                                 type="button"
                                 onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
+                                className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
                                 aria-label="Decrease quantity"
+                                disabled={quantityControlsDisabled}
                               >
                                 <Minus className="h-4 w-4" />
                               </button>
@@ -315,6 +355,7 @@ export function CartDrawer() {
                                 className="flex aspect-square h-9 w-9 items-center justify-center rounded-full border border-black/10 text-black transition hover:bg-black hover:text-white disabled:opacity-40 disabled:cursor-not-allowed dark:border-white/20 dark:text-white dark:hover:bg-white dark:hover:text-black"
                                 aria-label="Increase quantity"
                                 disabled={
+                                  quantityControlsDisabled ||
                                   isOutOfStock ||
                                   (typeof quantityAvailable === 'number' && item.quantity >= quantityAvailable)
                                 }
@@ -337,38 +378,55 @@ export function CartDrawer() {
                   })}
                 </div>
               )}
-            </div>
+                </div>
 
-            <div
-              ref={checkoutSectionRef}
-              className="space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10"
-              style={{ paddingBottom: checkoutPaddingBottom }}
-            >
-              <div className="flex items-center justify-between text-black dark:text-white">
-                <span className="text-xs uppercase tracking-[0.35em] text-black/60 dark:text-white/60">
-                  Subtotal
-                </span>
-                <span className="text-2xl tracking-[0.2em]">{currency.format(total)}</span>
+                <div
+                  ref={checkoutSectionRef}
+                  className={cn(
+                    'space-y-5 border-t border-black/10 px-6 py-6 dark:border-white/10',
+                    shouldStickCheckout &&
+                      'sticky bottom-0 z-10 bg-white/95 backdrop-blur-xl shadow-[0_-12px_45px_rgba(0,0,0,0.25)] dark:bg-zinc-900/95'
+                  )}
+                  style={{ paddingBottom: checkoutPaddingBottom }}
+                >
+                  <div className="flex items-center justify-between text-black dark:text-white">
+                    <span className="text-xs uppercase tracking-[0.35em] text-black/60 dark:text-white/60">
+                      Subtotal
+                    </span>
+                    <span className="text-2xl tracking-[0.2em]">{currency.format(total)}</span>
+                  </div>
+                  <p className="text-xs text-black/50 tracking-[0.25em] dark:text-white/50">
+                    Taxes calculated at checkout
+                  </p>
+                  <button
+                    type="button"
+                    onClick={hasItems && !isProcessingCheckout ? handleCheckout : handleShopClick}
+                    disabled={checkoutDisabled}
+                    className={cn(
+                      'w-full rounded-full px-6 py-6 text-xs font-semibold uppercase tracking-[0.4em] transition',
+                      hasItems && !hasUnavailableItems
+                        ? 'bg-black text-white shadow-[0_15px_40px_rgba(0,0,0,0.45)] hover:bg-black/90'
+                        : 'bg-zinc-200 text-black'
+                    )}
+                  >
+                    {hasItems
+                      ? hasUnavailableItems
+                        ? 'Unavailable'
+                        : isProcessingCheckout
+                          ? 'Redirecting…'
+                          : 'Checkout'
+                      : 'Empty'}
+                  </button>
+                  {hasUnavailableItems && (
+                    <p className="text-center text-[11px] uppercase tracking-[0.35em] text-red-600">
+                      Remove {blockingCartItem?.name ?? 'unavailable items'} to checkout
+                    </p>
+                  )}
+                  <p className="text-center text-[11px] uppercase tracking-[0.4em] text-black/80 dark:text-white">
+                    Free shipping over $75
+                  </p>
+                </div>
               </div>
-              <p className="text-xs text-black/50 tracking-[0.25em] dark:text-white/50">
-                Taxes calculated at checkout
-              </p>
-              <button
-                type="button"
-                onClick={hasItems && !isProcessingCheckout ? handleCheckout : handleShopClick}
-                disabled={!hasItems || isProcessingCheckout}
-                className={cn(
-                  'w-full rounded-full px-6 py-6 text-xs font-semibold uppercase tracking-[0.4em] transition',
-                  hasItems
-                    ? 'bg-black text-white shadow-[0_15px_40px_rgba(0,0,0,0.45)] hover:bg-black/90'
-                    : 'bg-zinc-200 text-black'
-                )}
-              >
-                {hasItems ? (isProcessingCheckout ? 'Redirecting…' : 'Checkout') : 'Empty'}
-              </button>
-              <p className="text-center text-[11px] uppercase tracking-[0.4em] text-black/80 dark:text-white">
-                Free shipping over $75
-              </p>
             </div>
           </motion.aside>
         </>
