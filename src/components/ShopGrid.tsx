@@ -9,7 +9,7 @@ const DEFAULT_VARIANT_ID = import.meta.env.VITE_SHOPIFY_PRIMARY_VARIANT_ID ?? ''
 const PRODUCT_HANDLE = import.meta.env.VITE_SHOPIFY_PRODUCT_HANDLE ?? '';
 
 const product = {
-  id: 1,
+  id: '1',
   name: 'The Aspen — Black',
   price: 39.99,
   image: hatLogo,
@@ -18,7 +18,7 @@ const product = {
 };
 
 export function ShopGrid() {
-  const { addItem, getVariantQuantity } = useCart();
+  const { addItem, items } = useCart();
   const availabilityMap = useVariantAvailability(
     product.shopifyVariantId ? [product.shopifyVariantId] : [],
     {
@@ -28,7 +28,9 @@ export function ShopGrid() {
   const variantAvailability = availabilityMap[product.shopifyVariantId];
 
   const quantityAvailable = variantAvailability?.quantityAvailable ?? null;
-  const quantityInCart = getVariantQuantity(product.shopifyVariantId);
+  const quantityInCart = items
+    .filter((item) => item.shopifyVariantId === product.shopifyVariantId)
+    .reduce((sum, item) => sum + item.quantity, 0);
   const remainingStock =
     typeof quantityAvailable === 'number'
       ? Math.max(quantityAvailable - quantityInCart, 0)

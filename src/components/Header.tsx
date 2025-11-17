@@ -12,7 +12,7 @@ const COMPACT_HEIGHT_BREAKPOINT = 540;
 export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCompactLogo, setIsCompactLogo] = useState(false);
-  const { openCart, itemCount } = useCart();
+  const { openCart, totalItems } = useCart();
 
   useEffect(() => {
     if (typeof window === 'undefined') return undefined;
@@ -102,9 +102,9 @@ export function Header() {
               aria-label="Shopping Cart"
             >
               <ShoppingCart size={20} />
-              {itemCount > 0 && (
+              {totalItems > 0 && (
                 <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
-                  {itemCount}
+                  {totalItems}
                 </span>
               )}
             </motion.button>
@@ -163,9 +163,9 @@ export function Header() {
                   aria-label="Shopping Cart"
                 >
                   <ShoppingCart size={22} />
-                  {itemCount > 0 && (
+                  {totalItems > 0 && (
                     <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-black text-[10px] font-semibold text-white">
-                      {itemCount}
+                      {totalItems}
                     </span>
                   )}
                 </motion.button>

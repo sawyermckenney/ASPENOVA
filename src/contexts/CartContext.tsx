@@ -1,62 +1,60 @@
-import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react';
+import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
 
 export interface CartItem {
-  id: number;
+  id: string;
   name: string;
   price: number;
   image: string;
   quantity: number;
+  variant?: string;
   color?: string;
-  shopifyVariantId: string;
+  shopifyVariantId?: string;
 }
 
-interface CartContextValue {
+interface CartContextType {
   items: CartItem[];
-  itemCount: number;
-  total: number;
-  isOpen: boolean;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
-  removeItem: (id: number) => void;
-  updateQuantity: (id: number, quantity: number) => void;
+  removeItem: (id: string) => void;
+  updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
-  toggleCart: () => void;
-  getVariantQuantity: (variantId: string) => number;
+  totalItems: number;
+  totalPrice: number;
 }
 
-const CartContext = createContext<CartContextValue | undefined>(undefined);
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
 
-  const addItem = (item: Omit<CartItem, 'quantity'>) => {
-    setItems((prev) => {
-      const existing = prev.find((cartItem) => cartItem.id === item.id);
+  const addItem = (newItem: Omit<CartItem, 'quantity'>) => {
+    setItems((current) => {
+      const existing = current.find((item) => item.id === newItem.id);
       if (existing) {
-        return prev.map((cartItem) =>
-          cartItem.id === item.id
-            ? { ...cartItem, quantity: cartItem.quantity + 1 }
-            : cartItem
+        return current.map((item) =>
+          item.id === newItem.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...item, quantity: 1 }];
+      return [...current, { ...newItem, quantity: 1 }];
     });
     setIsOpen(true);
   };
 
-  const removeItem = (id: number) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
+  const removeItem = (id: string) => {
+    setItems((current) => current.filter((item) => item.id !== id));
   };
 
-  const updateQuantity = (id: number, quantity: number) => {
+  const updateQuantity = (id: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(id);
       return;
     }
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, quantity } : item))
+
+    setItems((current) =>
+      current.map((item) => (item.id === id ? { ...item, quantity } : item))
     );
   };
 
@@ -64,47 +62,30 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const openCart = () => setIsOpen(true);
   const closeCart = () => setIsOpen(false);
-  const toggleCart = () => setIsOpen((prev) => !prev);
 
-  const itemCount = useMemo(
-    () => items.reduce((count, item) => count + item.quantity, 0),
+  const totalItems = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity, 0),
     [items]
   );
-
-  const total = useMemo(
+  const totalPrice = useMemo(
     () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     [items]
   );
 
-  const variantQuantityMap = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const item of items) {
-      map.set(item.shopifyVariantId, (map.get(item.shopifyVariantId) ?? 0) + item.quantity);
-    }
-    return map;
-  }, [items]);
-
-  const getVariantQuantity = useCallback(
-    (variantId: string) => variantQuantityMap.get(variantId) ?? 0,
-    [variantQuantityMap]
-  );
-
-  const value = useMemo<CartContextValue>(
+  const value = useMemo(
     () => ({
       items,
-      itemCount,
-      total,
-      isOpen,
       addItem,
       removeItem,
       updateQuantity,
       clearCart,
+      isOpen,
       openCart,
       closeCart,
-      toggleCart,
-      getVariantQuantity,
+      totalItems,
+      totalPrice,
     }),
-    [items, itemCount, total, isOpen, getVariantQuantity]
+    [items, isOpen, totalItems, totalPrice]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
@@ -117,3 +98,4 @@ export function useCart() {
   }
   return context;
 }
+
