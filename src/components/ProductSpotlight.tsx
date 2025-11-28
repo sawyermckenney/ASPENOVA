@@ -77,14 +77,16 @@ export function ProductSpotlight() {
               <div className="h-px w-16 bg-zinc-800" />
               
               <p className="text-zinc-600 leading-relaxed">
-                A premium take on the classic city wear silhouette. The Aspen combines time-honored 5-panel 
-                construction with contemporary streetwear sensibility, delivering comfort and style in equal measure.
+                The Aspen is our flagship piece: a daily reminder to look at life from a higher vantage point. 
+                Built on a classic 5-panel silhouette, it blends mountain mindset with city movement so it feels 
+                as natural on a ridge line as it does on a late-night walk downtown.
               </p>
               
               <p className="text-zinc-600 leading-relaxed">
-                Our signature embroidered upside-down logo sits proudly on the structured front panel, 
-                delivering a distinct look that stands out. Finished with an adjustable 
-                snapback closure for the perfect fit — this is city wear hat craftsmanship elevated.
+                Our signature upside down Aspenova mark is intentional, it flips the usual view, 
+                a subtle reminder that perspective changes everything. Clean lines, considered details, 
+                and an adjustable snapback closure come together in a hat built for people who move through 
+                the city with a mountain state of mind.
               </p>
             </div>
 

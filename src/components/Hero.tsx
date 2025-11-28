@@ -1,31 +1,63 @@
-import { motion } from 'motion/react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import heroImage from './images/heroImage.jpeg';
+import heroImage2 from './images/heroImage2.jpeg';
+import heroImage3 from './images/heroImage3.jpeg';
+import heroImage4 from './images/heroImage4.jpeg';
+import heroImage5 from './images/heroImage5.jpeg';
+
+const HERO_IMAGES = [heroImage2, heroImage, heroImage4,];
+const SLIDE_DURATION_MS = 6000;
 
 interface HeroProps {
   onShopClick: () => void;
 }
 
 export function Hero({ onShopClick }: HeroProps) {
+  const isFirstRender = useRef(true);
+  const [currentImage, setCurrentImage] = useState(0);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length);
+    }, SLIDE_DURATION_MS);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+    }
+  }, []);
+
   return (
     <section className="relative h-screen w-full overflow-hidden">
       {/* Background Image with Parallax */}
-      <motion.div
-        className="absolute inset-0"
-        initial={{ scale: 1.1 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 1.5, ease: [0.19, 1, 0.22, 1] }}
-      >
-        <ImageWithFallback
-          src="https://images.unsplash.com/photo-1675699582923-f6bccadab256?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzbm93eSUyMG1vdW50YWlucyUyMGNvbG9yYWRvfGVufDF8fHx8MTc2MjEzNjg5MHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
-          alt="Snowy Mountains Colorado"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/60" />
-      </motion.div>
+      <div className="absolute inset-0">
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={currentImage}
+            className="absolute inset-0"
+            initial={isFirstRender.current ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
+          >
+            <ImageWithFallback
+              src={HERO_IMAGES[currentImage]}
+              alt="Snowy Mountains Colorado"
+              className="w-full h-full object-cover"
+            />
+          </motion.div>
+        </AnimatePresence>
+
+      </div>
 
       {/* Grain Texture Overlay */}
-      <div 
+      <div
         className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,

@@ -80,10 +80,10 @@ export function Header() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              About Us
+              About Aspenova Club
             </motion.button>
 
-            <motion.button
+            {/* <motion.button
               type="button"
               className="p-2 text-black transition-colors hover:text-zinc-600"
               whileHover={{ scale: 1.1 }}
@@ -91,7 +91,7 @@ export function Header() {
               aria-label="Search"
             >
               <Search size={20} />
-            </motion.button>
+            </motion.button> */}
 
             <motion.button
               type="button"
@@ -139,7 +139,7 @@ export function Header() {
                 className="tracking-wider uppercase text-sm text-left py-2 text-black transition-colors hover:text-zinc-600"
                 whileTap={{ scale: 0.98 }}
               >
-                About Us
+                About Aspenova Club
               </motion.button>
 
               <div className="flex gap-6 pt-4 border-t border-black/10">

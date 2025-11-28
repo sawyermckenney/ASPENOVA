@@ -21,7 +21,7 @@ export function AboutSection() {
               </div>
               
               <h2 className="tracking-wide text-black">
-                Where Mountains Meet Streets
+                Elevating Perspective, Every Day
               </h2>
               
               <div className="h-px w-16 bg-zinc-800" />
@@ -29,20 +29,28 @@ export function AboutSection() {
 
             <div className="space-y-6 text-zinc-600 leading-relaxed">
               <p>
-                Aspenova Club started with two friends, Ryan and Sawyer, who always looked for the view nobody else saw—a perspective that challenges the ordinary and celebrates what happens when you flip the script.
+                Aspenova Club was started by two friends, Sawyer and Ryan, who wanted to turn a feeling into something real. That feeling came from Aspen, Colorado, standing up on the mountain top looking down at a place we call home. Realizing how different life looks when you’re higher up and have a moment to reflect. 
               </p>
               
               <p>
-                United by a shared drive for creativity and a love of the unexpected, they believed that greatness lives at the crossroads of contrast. Whether it’s city streets or mountain peaks, they set out to create pieces that embody that spirit—and a hat was the first step.
+                For us, ‘Elevating Perspective” isn’t just a phrase; it’s a way of living. It’s the practice of stepping outside your immediate thoughts and emotions to view a different perspective. Being able to choose compassion over reaction, pulling back from any negativity, and asking what truly matters. It is remembering that in a world this vast, we are small, and that smallness is freeing, not frightening.
               </p>
 
               <p>
-                This isn't just a drop of streetwear; this is the very beginning of a lifelong venture rooted in curiosity, friendship, and the conviction that fresh perspectives can change everything. One product, and a whole journey ahead.
+                Aspenova Club is our way of bringing that mindset into everyday life. We created this brand to encourage people to rise above the fear, sadness, judgement, and overthinking. It’s about learning to move through this chaotic world with a calmness and compassion for others and yourself. 
               </p>
 
               <p className="italic text-black">
-                Our story is just getting started.
+                We are glad to have you on this journey. 
+                <br />
+                This is just the beginning,
               </p>
+
+              <div className="flex justify-end pt-2">
+                <span className="block text-black text-base font-normal tracking-widest uppercase">
+                  — ASPENOVA CLUB
+                </span>
+              </div>
             </div>
 
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-zinc-200">
@@ -56,7 +64,7 @@ export function AboutSection() {
               </div>
               <div>
                 <p className="text-black tracking-wider mb-1">Mission</p>
-                <p className="text-zinc-600">Redefine Elevation</p>
+                <p className="text-zinc-600">Elevate Perspective</p>
               </div>
             </div>
           </motion.div>

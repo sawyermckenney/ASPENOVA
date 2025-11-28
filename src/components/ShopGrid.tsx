@@ -98,9 +98,6 @@ export function ShopGrid() {
             <p className="text-black tracking-wide">
               One Product, One Drop, One Style
             </p>
-            <p className="text-zinc-500 tracking-widest uppercase">
-              12.01.25 @ 12 PM MDT
-            </p>
             <p className="text-zinc-500 text-sm tracking-widest uppercase">
               Limited Quantities Available
             </p>
