@@ -1,3 +1,4 @@
+import React from 'react';
 import { motion } from 'motion/react';
 import { Button } from './ui/button';
 import { ProductImageGallery } from './ProductImageGallery';
@@ -69,24 +70,23 @@ export function ProductSpotlight() {
               <div className="inline-block px-4 py-1 bg-black text-white text-xs tracking-widest">
                 FEATURED
               </div>
-              
+
               <h2 className="tracking-wide text-black">
                 The Aspen
               </h2>
-              
+
               <div className="h-px w-16 bg-zinc-800" />
-              
+
               <p className="text-zinc-600 leading-relaxed">
-                The Aspen is our flagship piece: a daily reminder to look at life from a higher vantage point. 
-                Built on a classic 5-panel silhouette, it blends mountain mindset with city movement so it feels 
-                as natural on a ridge line as it does on a late-night walk downtown.
+                A premium take on the classic city wear silhouette. The Aspen combines time-honored 5-panel construction with contemporary streetwear sensibility, delivering comfort and style in equal measure. Inspired by the place that helped us start it all, this hat is a nod to the mountains and mindset they gave us.
               </p>
-              
+
               <p className="text-zinc-600 leading-relaxed">
-                Our signature upside down Aspenova mark is intentional, it flips the usual view, 
-                a subtle reminder that perspective changes everything. Clean lines, considered details, 
-                and an adjustable snapback closure come together in a hat built for people who move through 
-                the city with a mountain state of mind.
+                The upside-down logo sits proudly on the structured front panel, creating a distinct look that stands out and prompts people to take a second glance. To read it, they have to change their perspective; that small shift is the whole point.
+              </p>
+
+              <p className="text-zinc-600 leading-relaxed">
+                Finished with an adjustable snapback closure for a dialed-in fit, this is city-wear hat craftsmanship elevated, designed to carry the idea of <span className="italic">&quot;Elevating Perspective&quot;</span> into everyday.
               </p>
             </div>
 
