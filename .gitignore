@@ -3,3 +3,14 @@ node_modules
 dist
 *.log
 .env
+
+# build output
+build/
+.next/
+dist/
+
+# deps
+node_modules/
+
+# media
+*.mov
