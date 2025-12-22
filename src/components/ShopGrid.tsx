@@ -113,7 +113,6 @@ export function ShopGrid() {
             badge={product.badge}
             stockLeft={remainingStock}
             isOutOfStock={isOutOfStock}
-            inventoryLabel={inventoryLabel}
             inventoryTone={inventoryTone}
             onAddToCart={handleAddToCart}
           />

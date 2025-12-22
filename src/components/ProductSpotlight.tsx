@@ -93,7 +93,6 @@ export function ProductSpotlight() {
             <div className="space-y-4">
               <div className="flex items-baseline gap-4">
                 <span className="text-black tracking-wider">$39.99</span>
-                <span className="text-zinc-400 text-sm">Free shipping on orders over $75</span>
               </div>
 
               <div className="space-y-2">

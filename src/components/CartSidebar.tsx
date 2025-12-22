@@ -186,8 +186,6 @@ export function CartSidebar() {
                 >
                   {isProcessingCheckout ? 'REDIRECTING…' : 'CHECKOUT'}
                 </Button>
-
-                <p className="text-center text-xs text-zinc-500">Free shipping on orders over $75</p>
               </div>
             )}
           </motion.div>

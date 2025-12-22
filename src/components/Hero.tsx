@@ -2,13 +2,11 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Button } from './ui/button';
 import { ImageWithFallback } from './figma/ImageWithFallback';
-import heroImage from './images/heroImage.jpeg';
-import heroImage2 from './images/heroImage2.jpeg';
-import heroImage3 from './images/heroImage3.jpeg';
-import heroImage4 from './images/heroImage4.jpeg';
-import heroImage5 from './images/heroImage5.jpeg';
+import heroImage0 from './images/heroImage2.jpeg';
+import heroImage1 from './images/heroImage4.jpeg';
+import heroImage2 from './images/heroImage5.jpeg';
 
-const HERO_IMAGES = [heroImage2, heroImage, heroImage4,];
+const HERO_IMAGES = [heroImage0, heroImage1, heroImage2];
 const SLIDE_DURATION_MS = 6000;
 
 interface HeroProps {

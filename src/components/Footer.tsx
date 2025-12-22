@@ -1,9 +1,10 @@
 import { useState } from 'react';
+import React from 'react';
 import { motion } from 'motion/react';
 import { Instagram, ShoppingBag, Mail } from 'lucide-react';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
-import { toast } from 'sonner@2.0.3';
+//import { toast } from 'sonner@2.0.3';
 
 export function Footer() {
   const [email, setEmail] = useState('');
@@ -11,7 +12,7 @@ export function Footer() {
   const handleNewsletterSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (email) {
-      toast.success('Thank you for subscribing!');
+      //toast.success('Thank you for subscribing!');
       setEmail('');
     }
   };
@@ -110,7 +111,7 @@ export function Footer() {
           {/* Copyright */}
           <div className="pt-8 border-t border-white/10">
             <p className="text-white/40 text-xs tracking-wider">
-              © 2025 Aspenova Club. All rights reserved.
+              © 2026 Aspenova Club. All rights reserved.
             </p>
           </div>
         </motion.div>

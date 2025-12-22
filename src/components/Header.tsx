@@ -145,20 +145,11 @@ export function Header() {
               <div className="flex gap-6 pt-4 border-t border-black/10">
                 <motion.button
                   type="button"
-                  className="p-2 text-black transition-colors hover:text-zinc-600"
-                  whileTap={{ scale: 0.9 }}
-                  aria-label="Search"
-                >
-                  <Search size={22} />
-                </motion.button>
-
-                <motion.button
-                  type="button"
                   onClick={() => {
                     openCart();
                     setIsMobileMenuOpen(false);
                   }}
-                  className="p-2 text-black transition-colors hover:text-zinc-600 relative"
+                  className="p-2 text-black transition-colors hover:text-zinc-600"
                   whileTap={{ scale: 0.9 }}
                   aria-label="Shopping Cart"
                 >
