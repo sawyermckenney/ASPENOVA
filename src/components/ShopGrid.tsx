@@ -131,7 +131,7 @@ export function ShopGrid() {
               COMING SOON
             </p>
             <h3 className="text-black tracking-wide">
-              Drop 02 — Winter 2025
+              Drop 02 — Spring 2026
             </h3>
           </div>
         </motion.div>

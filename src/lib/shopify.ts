@@ -4,6 +4,17 @@ const SHOPIFY_STORE_DOMAIN = import.meta.env.VITE_SHOPIFY_STORE_DOMAIN;
 const SHOPIFY_STOREFRONT_ACCESS_TOKEN = import.meta.env.VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN;
 const SHOPIFY_API_VERSION = import.meta.env.VITE_SHOPIFY_STOREFRONT_API_VERSION ?? '2024-07';
 
+// Validate environment variables at module load time in development
+if (import.meta.env.DEV) {
+  if (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_STOREFRONT_ACCESS_TOKEN) {
+    console.error(
+      '❌ Missing Shopify environment variables!\n' +
+      'Required: VITE_SHOPIFY_STORE_DOMAIN and VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN\n' +
+      'Copy .env.example to .env and fill in your Shopify credentials.'
+    );
+  }
+}
+
 const CART_CREATE_MUTATION = /* GraphQL */ `
   mutation CartCreate($lines: [CartLineInput!]!) {
     cartCreate(input: { lines: $lines }) {

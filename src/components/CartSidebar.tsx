@@ -5,6 +5,8 @@ import { toast } from 'sonner@2.0.3';
 import { useCart } from '../contexts/CartContext';
 import { Button } from './ui/button';
 import { createShopifyCheckout } from '../lib/shopify';
+import { scrollToSection } from '../lib/utils';
+import { ecommerce } from '../lib/analytics';
 
 export function CartSidebar() {
   const {
@@ -21,8 +23,7 @@ export function CartSidebar() {
 
   const handleShopClick = () => {
     closeCart();
-    const section = document.getElementById('shop');
-    section?.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('shop');
   };
 
   const handleCheckout = async () => {
@@ -33,6 +34,10 @@ export function CartSidebar() {
 
     try {
       setIsProcessingCheckout(true);
+      
+      // Track analytics before checkout
+      ecommerce.beginCheckout(items, totalPrice);
+      
       const checkoutUrl = await createShopifyCheckout(items);
       toast.success('Redirecting to checkout…');
       clearCart();

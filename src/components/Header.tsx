@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Search, ShoppingCart, Menu, X } from 'lucide-react';
-import logoImage from './images/logoImage.svg';
+import type { JSX } from 'react';
+import logoImage from './images/updatedLogo.png';
 import mobileLogo from './images/blackLogo.png';
 import { useCart } from '../contexts/CartContext';
 import { ImageWithFallback } from './figma/ImageWithFallback';
+import { scrollToSection } from '../lib/utils';
 
 const MOBILE_HEADER_BREAKPOINT = 768;
 const COMPACT_HEIGHT_BREAKPOINT = 540;
@@ -38,14 +40,11 @@ export function Header() {
     };
   }, []);
 
-  const logoSrc = isCompactLogo ? mobileLogo : logoImage;
+  const logoSrc = logoImage;
 
-  const scrollToSection = (id: string) => {
-    const section = document.getElementById(id);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
-      setIsMobileMenuOpen(false);
-    }
+  const handleScrollToSection = (id: string) => {
+    scrollToSection(id);
+    setIsMobileMenuOpen(false);
   };
 
   return (
@@ -56,26 +55,27 @@ export function Header() {
       className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-black/10"
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
-        <div className="flex items-center justify-between h-16">
+        <div className="flex items-center justify-between" style={{ height: '112px' }}>
           {/* Logo */}
           <motion.button
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="flex items-center gap-3 tracking-[0.3em] text-lg md:text-xl text-black transition-colors hover:text-zinc-600"
+            className="flex items-center gap-5 tracking-[0.15em] md:tracking-[0.1em] text-lg md:text-xl text-black transition-colors hover:text-zinc-600 whitespace-nowrap"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
           >
             <ImageWithFallback
               src={logoSrc}
               alt="Aspenova logo"
-              className="w-16 h-16 shrink-0 md:w-7 md:h-7"
+              className="shrink-0 object-contain"
+              style={{ width: '96px', height: '96px' }}
             />
-            ASPENOVA
+            ASPENOVA CLUB
           </motion.button>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-10">
             <motion.button
-              onClick={() => scrollToSection('about')}
+              onClick={() => handleScrollToSection('about')}
               className="tracking-wider uppercase text-sm text-black transition-colors hover:text-zinc-600"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -135,7 +135,7 @@ export function Header() {
           >
             <nav className="flex flex-col gap-4 px-6 py-6">
               <motion.button
-                onClick={() => scrollToSection('about')}
+                onClick={() => handleScrollToSection('about')}
                 className="tracking-wider uppercase text-sm text-left py-2 text-black transition-colors hover:text-zinc-600"
                 whileTap={{ scale: 0.98 }}
               >

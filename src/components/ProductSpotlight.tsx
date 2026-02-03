@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Button } from './ui/button';
 import { ProductImageGallery } from './ProductImageGallery';
+import { scrollToSection } from '../lib/utils';
 
 import frontViewImage from './images/productImages/hatLogo.JPG';
 import leftViewImage from './images/productImages/leftSide.jpg';
@@ -40,8 +41,7 @@ const productImages = [
 
 export function ProductSpotlight() {
   const handleViewProductClick = () => {
-    const shopSection = document.getElementById('shop');
-    shopSection?.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection('shop');
   };
 
   return (

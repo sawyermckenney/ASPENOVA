@@ -7,13 +7,27 @@ import {
 
 type AvailabilityMap = Record<string, VariantAvailability | undefined>;
 
-const cache = new Map<string, VariantAvailability>();
+// Cache with timestamp for TTL (Time To Live)
+const CACHE_TTL_MS = 2 * 60 * 1000; // 2 minutes
+
+interface CacheEntry {
+  data: VariantAvailability;
+  timestamp: number;
+}
+
+const cache = new Map<string, CacheEntry>();
+
+function isCacheValid(entry: CacheEntry | undefined): boolean {
+  if (!entry) return false;
+  return Date.now() - entry.timestamp < CACHE_TTL_MS;
+}
 
 function getCache(ids: string[]) {
   const map: AvailabilityMap = {};
   ids.forEach((id) => {
-    if (cache.has(id)) {
-      map[id] = cache.get(id);
+    const entry = cache.get(id);
+    if (entry && isCacheValid(entry)) {
+      map[id] = entry.data;
     }
   });
   return map;
@@ -37,7 +51,7 @@ export function useVariantAvailability(variantIds: string[], options?: Options):
     let cancelled = false;
 
     async function load() {
-      const idsToFetch = normalizedIds.filter((id) => !cache.has(id));
+      const idsToFetch = normalizedIds.filter((id) => !isCacheValid(cache.get(id)));
       if (!idsToFetch.length) return;
 
       try {
@@ -48,7 +62,7 @@ export function useVariantAvailability(variantIds: string[], options?: Options):
           setState((prev) => {
             const next = { ...prev };
             Object.entries(availabilityByHandle).forEach(([id, availability]) => {
-              cache.set(id, availability);
+              cache.set(id, { data: availability, timestamp: Date.now() });
               next[id] = availability;
             });
             return next;
@@ -60,7 +74,7 @@ export function useVariantAvailability(variantIds: string[], options?: Options):
           idsToFetch.map(async (id) => {
             try {
               const availability = await fetchVariantAvailability(id);
-              cache.set(id, availability);
+              cache.set(id, { data: availability, timestamp: Date.now() });
               return [id, availability] as const;
             } catch (error) {
               console.error(`[Inventory] Failed to fetch availability for ${id}`, error);
@@ -93,7 +107,8 @@ export function useVariantAvailability(variantIds: string[], options?: Options):
   }, [idsKey, productHandle]);
 
   return normalizedIds.reduce<AvailabilityMap>((acc, id) => {
-    acc[id] = cache.get(id) ?? state[id];
+    const entry = cache.get(id);
+    acc[id] = (entry && isCacheValid(entry) ? entry.data : undefined) ?? state[id];
     return acc;
   }, {});
 }

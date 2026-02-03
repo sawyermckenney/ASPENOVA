@@ -2,9 +2,26 @@
   import { defineConfig } from 'vite';
   import react from '@vitejs/plugin-react-swc';
   import path from 'path';
+  import { ViteImageOptimizer } from 'vite-plugin-image-optimizer';
 
   export default defineConfig({
-    plugins: [react()],
+    plugins: [
+      react(),
+      ViteImageOptimizer({
+        // Image optimization only in production builds
+        exclude: process.env.NODE_ENV === 'development' ? /.*/ : undefined,
+        jpg: {
+          quality: 85,
+        },
+        png: {
+          quality: 85,
+        },
+        webp: {
+          lossless: false,
+          quality: 85,
+        },
+      }),
+    ],
     resolve: {
       extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
       alias: {

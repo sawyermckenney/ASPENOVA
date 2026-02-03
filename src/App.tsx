@@ -8,15 +8,13 @@ import { Footer } from './components/Footer';
 import { Toaster } from './components/ui/sonner';
 import { CartSidebar, CartToggle } from './components/CartSidebar';
 import { VideoIntro } from './components/VideoIntro';
+import { scrollToSection } from './lib/utils';
 
 export default function App() {
   const [showIntro, setShowIntro] = useState(true);
 
-  const scrollToShop = () => {
-    const shopSection = document.getElementById('shop');
-    if (shopSection) {
-      shopSection.scrollIntoView({ behavior: 'smooth' });
-    }
+  const handleScrollToShop = () => {
+    scrollToSection('shop');
   };
 
   if (showIntro) {
@@ -26,7 +24,7 @@ export default function App() {
         <VideoIntro
           onComplete={() => {
             setShowIntro(false);
-            window.setTimeout(scrollToShop, 0);
+            window.setTimeout(handleScrollToShop, 0);
           }}
         />
       </div>
@@ -39,7 +37,7 @@ export default function App() {
       <CartToggle />
       <CartSidebar />
       <main className="pt-16">
-        <Hero onShopClick={scrollToShop} />
+        <Hero onShopClick={handleScrollToShop} />
         <ShopGrid />
         <ProductSpotlight />
         <AboutSection />
