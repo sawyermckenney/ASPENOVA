@@ -1,11 +1,15 @@
 import img1 from './images/gallery/_PBJ2824.JPEG';
 import img2 from './images/gallery/_PBJ2867.JPEG';
 import img3 from './images/gallery/_PBJ2900.JPEG';
+import img4 from './images/gallery/FullSizeRender-preview.JPG';
+import img5 from './images/gallery/IMG_4945.jpeg';
 
 const images: { src: string; alt: string }[] = [
   { src: img1, alt: 'Aspenova lookbook' },
   { src: img2, alt: 'Aspenova lookbook' },
   { src: img3, alt: 'Aspenova lookbook' },
+  { src: img4, alt: 'Aspenova lookbook' },
+  { src: img5, alt: 'Aspenova lookbook' },
 ];
 
 export function Gallery() {
