@@ -1,108 +1,62 @@
-import { useState } from 'react';
-import { motion } from 'motion/react';
-import { Button } from './ui/button';
-import { ImageWithFallback } from './figma/ImageWithFallback';
+import { navigate } from '../hooks/useRoute';
+import type { ShopifyProduct, VariantAvailability } from '../lib/shopify';
 
 interface ProductCardProps {
-  name: string;
-  price: number;
-  image: string;
-  badge?: string;
-  stockLeft?: number;
-  isOutOfStock?: boolean;
-  inventoryLabel?: string;
-  inventoryTone?: 'muted' | 'warning' | 'danger';
-  onAddToCart?: () => void;
+  product: ShopifyProduct;
+  availabilityMap: Record<string, VariantAvailability | undefined>;
 }
 
-export function ProductCard({
-  name,
-  price,
-  image,
-  badge,
-  stockLeft,
-  isOutOfStock,
-  inventoryLabel,
-  inventoryTone = 'muted',
-  onAddToCart,
-}: ProductCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-  const showInventory = Boolean(inventoryLabel);
-  const toneClass =
-    inventoryTone === 'danger'
-      ? 'text-red-600'
-      : inventoryTone === 'warning'
-        ? 'text-amber-600'
-        : 'text-zinc-500';
+export function ProductCard({ product, availabilityMap }: ProductCardProps) {
+  const allSoldOut = product.variants.every((v) => {
+    const availability = availabilityMap[v.id];
+    return availability?.availableForSale === false || !v.availableForSale;
+  });
+
+  const price = parseFloat(product.priceRange.minVariantPrice.amount);
+  const maxPrice = parseFloat(product.priceRange.maxVariantPrice.amount);
+  const hasRange = maxPrice > price;
+  const primaryImage = product.images[0];
+  const hoverImage = product.images[1];
 
   return (
-    <motion.div
-      className="group relative bg-white overflow-hidden"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5 }}
+    <button
+      onClick={() => navigate(`/product/${product.handle}`)}
+      className="group text-left w-full"
     >
-      {/* Product Image */}
-      <div className="relative aspect-square overflow-hidden bg-zinc-50">
-        <motion.div
-          animate={{ scale: isHovered ? 1.08 : 1 }}
-          transition={{ duration: 0.6, ease: [0.19, 1, 0.22, 1] }}
-          className="w-full h-full"
-        >
-          <ImageWithFallback
-            src={image}
-            alt={name}
-            className="w-full h-full object-cover"
+      {/* Image */}
+      <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden mb-3">
+        {primaryImage && (
+          <img
+            src={primaryImage.url}
+            alt={primaryImage.altText ?? product.title}
+            className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.03] ${
+              hoverImage ? 'group-hover:opacity-0' : ''
+            }`}
+            loading="lazy"
           />
-        </motion.div>
-
-        {/* Badge */}
-        {badge && (
-          <div className="absolute top-4 left-4 px-3 py-1 bg-black text-white text-xs tracking-wider">
-            {badge}
+        )}
+        {hoverImage && (
+          <img
+            src={hoverImage.url}
+            alt={hoverImage.altText ?? product.title}
+            className="absolute inset-0 w-full h-full object-cover opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-[1.03]"
+            loading="lazy"
+          />
+        )}
+        {allSoldOut && (
+          <div className="absolute top-3 left-3 px-2 py-1 bg-white text-[10px] tracking-[0.15em] uppercase text-neutral-500">
+            Sold Out
           </div>
         )}
-
-        {/* Hover Overlay */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: isHovered ? 1 : 0 }}
-          transition={{ duration: 0.3 }}
-          className="absolute inset-0 bg-black/10 flex items-center justify-center"
-        >
-          <span className="text-white tracking-[0.2em] text-sm">
-            DROP 01 — THE ASPEN
-          </span>
-        </motion.div>
       </div>
 
-      {/* Product Info */}
-      <div className="p-6 space-y-4">
-        <div className="space-y-1">
-          <h3 className="tracking-wide text-black">{name}</h3>
-          <p className="text-zinc-600">${price}</p>
-          {showInventory && (
-            <p
-              className={`text-xs uppercase tracking-[0.25em] ${
-                isOutOfStock ? 'text-red-600' : toneClass
-              }`}
-            >
-              {inventoryLabel}
-            </p>
-          )}
-        </div>
-
-        <Button
-          onClick={onAddToCart}
-          disabled={isOutOfStock}
-          className="w-full bg-black text-white hover:bg-zinc-800 transition-colors disabled:cursor-not-allowed disabled:bg-zinc-400"
-        >
-          {isOutOfStock ? 'Coming Soon' : 'Add to Cart'}
-        </Button>
+      {/* Info */}
+      <div className="space-y-0.5">
+        <h3 className="text-[13px] tracking-wide text-black">{product.title}</h3>
+        <p className="text-[13px] text-neutral-400">
+          {hasRange ? `From $${price.toFixed(2)}` : `$${price.toFixed(2)}`}
+        </p>
       </div>
-    </motion.div>
+    </button>
   );
 }

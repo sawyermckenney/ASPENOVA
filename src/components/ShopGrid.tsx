@@ -1,140 +1,74 @@
-import { motion } from 'motion/react';
+import { useMemo } from 'react';
 import { ProductCard } from './ProductCard';
-import { toast } from 'sonner@2.0.3';
-import hatLogo from './images/productImages/hatLogo.JPG';
-import { useCart } from '../contexts/CartContext';
+import { useProducts } from '../hooks/useProducts';
 import { useVariantAvailability } from '../hooks/useVariantAvailability';
 
-const DEFAULT_VARIANT_ID = import.meta.env.VITE_SHOPIFY_PRIMARY_VARIANT_ID ?? '';
-const PRODUCT_HANDLE = import.meta.env.VITE_SHOPIFY_PRODUCT_HANDLE ?? '';
-
-const product = {
-  id: '1',
-  name: 'The Aspen — Black',
-  price: 39.99,
-  image: hatLogo,
-  badge: 'DROP 01',
-  shopifyVariantId: DEFAULT_VARIANT_ID,
-};
-
 export function ShopGrid() {
-  const { addItem, items } = useCart();
-  const availabilityMap = useVariantAvailability(
-    product.shopifyVariantId ? [product.shopifyVariantId] : [],
-    {
-      productHandle: PRODUCT_HANDLE || undefined,
-    }
+  const { products, isLoading, error } = useProducts();
+
+  const allVariantIds = useMemo(
+    () => products.flatMap((p) => p.variants.map((v) => v.id)),
+    [products]
   );
-  const variantAvailability = availabilityMap[product.shopifyVariantId];
 
-  const quantityAvailable = variantAvailability?.quantityAvailable ?? null;
-  const quantityInCart = items
-    .filter((item) => item.shopifyVariantId === product.shopifyVariantId)
-    .reduce((sum, item) => sum + item.quantity, 0);
-  const remainingStock =
-    typeof quantityAvailable === 'number'
-      ? Math.max(quantityAvailable - quantityInCart, 0)
-      : undefined;
-  const isOutOfStock =
-    variantAvailability?.availableForSale === false ||
-    (typeof quantityAvailable === 'number' && quantityAvailable <= quantityInCart);
-  const isInventoryLoading = variantAvailability === undefined;
-
-  const inventoryLabel = isInventoryLoading
-    ? 'Checking inventory…'
-    : isOutOfStock
-      ? 'Coming Soon'
-      : typeof remainingStock === 'number'
-        ? `${remainingStock} Left In Stock`
-        : undefined;
-
-  const inventoryTone: 'muted' | 'warning' | 'danger' =
-    isOutOfStock || remainingStock === 0
-      ? 'danger'
-      : typeof remainingStock === 'number' && remainingStock <= 5
-        ? 'warning'
-        : 'muted';
-
-  const handleAddToCart = () => {
-    if (isOutOfStock) {
-      toast.info('This item is currently sold out.');
-      return;
-    }
-
-    if (typeof quantityAvailable === 'number' && quantityInCart >= quantityAvailable) {
-      toast.info('You have added the maximum available quantity.');
-      return;
-    }
-
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      color: 'Snowfield / Onyx',
-      shopifyVariantId: product.shopifyVariantId,
-    });
-    toast.success(`${product.name} added to cart`);
-  };
+  const availabilityMap = useVariantAvailability(allVariantIds);
 
   return (
-    <section id="shop" className="py-24 px-6 bg-zinc-50">
-      <div className="max-w-7xl mx-auto">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
-        >
-          <h2 className="tracking-[0.2em] text-black mb-6">
-            DROP 01
-          </h2>
-          <div className="max-w-2xl mx-auto space-y-3">
-            <p className="text-zinc-600">
-              The beginning of something different.
-            </p>
-            <p className="text-black tracking-wide">
-              One Product, One Drop, One Style
-            </p>
-            <p className="text-zinc-500 text-sm tracking-widest uppercase">
-              Limited Quantities Available
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Single Product Feature */}
-        <div className="max-w-xl mx-auto">
-          <ProductCard
-            name={product.name}
-            price={product.price}
-            image={product.image}
-            badge={product.badge}
-            stockLeft={remainingStock}
-            isOutOfStock={isOutOfStock}
-            inventoryTone={inventoryTone}
-            onAddToCart={handleAddToCart}
-          />
+    <section className="pt-28 pb-24 px-6">
+      <div className="max-w-[1400px] mx-auto">
+        {/* Header */}
+        <div className="mb-16">
+          <h1 className="text-3xl md:text-4xl tracking-[0.15em] font-light uppercase">
+            Shop
+          </h1>
+          <div className="w-12 h-px bg-neutral-300 mt-6" />
         </div>
 
-        {/* Coming Soon Teaser */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.3, duration: 0.6 }}
-          className="mt-20 text-center"
-        >
-          <div className="py-16 border-t border-zinc-200">
-            <p className="text-zinc-400 tracking-[0.3em] text-sm mb-2">
-              COMING SOON
-            </p>
-            <h3 className="text-black tracking-wide">
-              Drop 02 — Spring 2026
-            </h3>
+        {/* Loading */}
+        {isLoading && (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="animate-pulse">
+                <div className="aspect-[3/4] bg-neutral-100" />
+                <div className="mt-3 space-y-2">
+                  <div className="h-3 bg-neutral-100 w-3/4" />
+                  <div className="h-3 bg-neutral-100 w-1/4" />
+                </div>
+              </div>
+            ))}
           </div>
-        </motion.div>
+        )}
+
+        {/* Error */}
+        {error && (
+          <div className="text-center py-32">
+            <p className="text-neutral-400 text-sm tracking-wide">
+              Unable to load products. Please try again.
+            </p>
+          </div>
+        )}
+
+        {/* Empty */}
+        {!isLoading && !error && products.length === 0 && (
+          <div className="text-center py-32">
+            <p className="text-neutral-400 text-sm tracking-wide">
+              No products available.
+            </p>
+          </div>
+        )}
+
+        {/* Grid */}
+        {!isLoading && !error && products.length > 0 && (
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
+            {products.map((product) => (
+              <ProductCard
+                key={product.id}
+                product={product}
+                availabilityMap={availabilityMap}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

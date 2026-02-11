@@ -1,46 +1,29 @@
-import { useState } from 'react';
+import { useRoute } from './hooks/useRoute';
 import { Header } from './components/Header';
 import { Hero } from './components/Hero';
 import { ShopGrid } from './components/ShopGrid';
-import { ProductSpotlight } from './components/ProductSpotlight';
-import { AboutSection } from './components/AboutSection';
+import { ProductDetail } from './components/ProductDetail';
+import { About } from './components/About';
+import { Gallery } from './components/Gallery';
+import { Policies } from './components/Policies';
+import { CartSidebar } from './components/CartSidebar';
 import { Footer } from './components/Footer';
 import { Toaster } from './components/ui/sonner';
-import { CartSidebar, CartToggle } from './components/CartSidebar';
-import { VideoIntro } from './components/VideoIntro';
-import { scrollToSection } from './lib/utils';
 
 export default function App() {
-  const [showIntro, setShowIntro] = useState(true);
-
-  const handleScrollToShop = () => {
-    scrollToSection('shop');
-  };
-
-  if (showIntro) {
-    return (
-      <div className="min-h-screen bg-white">
-        <Header />
-        <VideoIntro
-          onComplete={() => {
-            setShowIntro(false);
-            window.setTimeout(handleScrollToShop, 0);
-          }}
-        />
-      </div>
-    );
-  }
+  const route = useRoute();
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white text-black">
       <Header />
-      <CartToggle />
       <CartSidebar />
-      <main className="pt-16">
-        <Hero onShopClick={handleScrollToShop} />
-        <ShopGrid />
-        <ProductSpotlight />
-        <AboutSection />
+      <main>
+        {route.page === 'home' && <Hero />}
+        {route.page === 'shop' && <ShopGrid />}
+        {route.page === 'gallery' && <Gallery />}
+        {route.page === 'about' && <About />}
+        {route.page === 'policies' && <Policies />}
+        {route.page === 'product' && <ProductDetail handle={route.handle} />}
       </main>
       <Footer />
       <Toaster position="bottom-right" />

@@ -1,121 +1,78 @@
-import { useEffect, useRef, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Button } from './ui/button';
-import { ImageWithFallback } from './figma/ImageWithFallback';
-import heroImage0 from './images/heroImage2.jpeg';
-import heroImage1 from './images/heroImage4.jpeg';
-import heroImage2 from './images/heroImage5.jpeg';
+import { navigate } from '../hooks/useRoute';
+import { useProducts } from '../hooks/useProducts';
 
-const HERO_IMAGES = [heroImage0, heroImage1, heroImage2];
-const SLIDE_DURATION_MS = 6000;
-
-interface HeroProps {
-  onShopClick: () => void;
-}
-
-export function Hero({ onShopClick }: HeroProps) {
-  const isFirstRender = useRef(true);
-  const [currentImage, setCurrentImage] = useState(0);
-
-  useEffect(() => {
-    const intervalId = window.setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % HERO_IMAGES.length);
-    }, SLIDE_DURATION_MS);
-
-    return () => window.clearInterval(intervalId);
-  }, []);
-
-  useEffect(() => {
-    if (isFirstRender.current) {
-      isFirstRender.current = false;
-    }
-  }, []);
+export function Hero() {
+  const { products, isLoading } = useProducts();
+  const featured = products.slice(0, 4);
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
-      {/* Background Image with Parallax */}
-      <div className="absolute inset-0">
-        <AnimatePresence initial={false}>
-          <motion.div
-            key={currentImage}
-            className="absolute inset-0"
-            initial={isFirstRender.current ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ duration: 1.2, ease: [0.19, 1, 0.22, 1] }}
-          >
-            <ImageWithFallback
-              src={HERO_IMAGES[currentImage]}
-              alt="Snowy Mountains Colorado"
-              className="w-full h-full object-cover"
-            />
-          </motion.div>
-        </AnimatePresence>
-
-      </div>
-
-      {/* Grain Texture Overlay */}
-      <div
-        className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-        }}
-      />
-
-      {/* Content */}
-      <div className="relative h-full flex flex-col items-center justify-center px-6 text-center">
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="space-y-6 max-w-4xl"
-        >
-          {/* Logo/Brand Name */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5, duration: 1 }}
-            className="mb-8"
-          >
-            <h1 className="text-white tracking-[0.3em] text-4xl md:text-6xl lg:text-7xl">
-              ASPENOVA CLUB
-            </h1>
-          </motion.div>
-
-          <p className="text-white/90 text-lg md:text-xl tracking-wide max-w-2xl mx-auto">
-            For those who see the world differently.
+    <>
+      {/* Hero Section */}
+      <section className="pt-16">
+        <div className="flex flex-col items-center justify-center min-h-[85vh] px-6 text-center">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl tracking-[0.25em] font-light text-black uppercase">
+            ASPENOVA CLUB
+          </h1>
+          <div className="w-12 h-px bg-neutral-300 my-8" />
+          <p className="text-[13px] tracking-[0.2em] text-neutral-400 uppercase font-light">
+            Elevating Perspective
           </p>
-
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1, duration: 0.8 }}
-            className="pt-8"
+          <button
+            onClick={() => navigate('/shop')}
+            className="mt-16 px-10 py-3.5 border border-black text-[11px] tracking-[0.25em] uppercase text-black hover:bg-black hover:text-white transition-colors duration-300"
           >
-            <Button
-              onClick={onShopClick}
-              className="px-12 py-6 bg-white text-black hover:bg-zinc-100 transition-all duration-300 tracking-widest shadow-xl hover:shadow-2xl"
-            >
-              Preview The Drop 
-            </Button>
-          </motion.div>
-        </motion.div>
-      </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1, y: [0, 10, 0] }}
-        transition={{
-          opacity: { delay: 1.5, duration: 0.5 },
-          y: { repeat: Infinity, duration: 2, ease: "easeInOut" }
-        }}
-      >
-        <div className="w-6 h-10 border-2 border-white/50 rounded-full flex justify-center pt-2">
-          <div className="w-1 h-3 bg-white/70 rounded-full" />
+            Shop Now
+          </button>
         </div>
-      </motion.div>
-    </section>
+      </section>
+
+      {/* Featured Products */}
+      {!isLoading && featured.length > 0 && (
+        <section className="px-6 pb-24">
+          <div className="max-w-[1400px] mx-auto">
+            <div className="flex items-center gap-6 mb-12">
+              <h2 className="text-[11px] tracking-[0.3em] uppercase text-neutral-400">
+                Featured
+              </h2>
+              <div className="flex-1 h-px bg-neutral-200" />
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              {featured.map((product) => {
+                const image = product.images[0];
+                const price = parseFloat(product.priceRange.minVariantPrice.amount);
+                const allSoldOut = product.variants.every((v) => !v.availableForSale);
+
+                return (
+                  <button
+                    key={product.id}
+                    onClick={() => navigate(`/product/${product.handle}`)}
+                    className="group text-left"
+                  >
+                    <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden mb-3">
+                      {image && (
+                        <img
+                          src={image.url}
+                          alt={image.altText ?? product.title}
+                          className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500"
+                          loading="lazy"
+                        />
+                      )}
+                      {allSoldOut && (
+                        <div className="absolute top-3 left-3 px-2 py-1 bg-white text-[10px] tracking-[0.15em] uppercase text-neutral-500">
+                          Sold Out
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-[12px] tracking-wide text-black">{product.title}</p>
+                    <p className="text-[12px] text-neutral-400 mt-0.5">${price.toFixed(2)}</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+      )}
+    </>
   );
 }

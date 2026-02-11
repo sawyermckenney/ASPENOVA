@@ -8,12 +8,43 @@ const SHOPIFY_API_VERSION = import.meta.env.VITE_SHOPIFY_STOREFRONT_API_VERSION 
 if (import.meta.env.DEV) {
   if (!SHOPIFY_STORE_DOMAIN || !SHOPIFY_STOREFRONT_ACCESS_TOKEN) {
     console.error(
-      '❌ Missing Shopify environment variables!\n' +
+      'Missing Shopify environment variables!\n' +
       'Required: VITE_SHOPIFY_STORE_DOMAIN and VITE_SHOPIFY_STOREFRONT_ACCESS_TOKEN\n' +
       'Copy .env.example to .env and fill in your Shopify credentials.'
     );
   }
 }
+
+// ── Product types ──────────────────────────────────────────────
+
+export interface ShopifyImage {
+  url: string;
+  altText: string | null;
+}
+
+export interface ShopifyVariant {
+  id: string;
+  title: string;
+  availableForSale: boolean;
+  quantityAvailable: number | null;
+  price: { amount: string; currencyCode: string };
+  selectedOptions: { name: string; value: string }[];
+}
+
+export interface ShopifyProduct {
+  id: string;
+  title: string;
+  handle: string;
+  description: string;
+  images: ShopifyImage[];
+  variants: ShopifyVariant[];
+  priceRange: {
+    minVariantPrice: { amount: string; currencyCode: string };
+    maxVariantPrice: { amount: string; currencyCode: string };
+  };
+}
+
+// ── Queries / Mutations ────────────────────────────────────────
 
 const CART_CREATE_MUTATION = /* GraphQL */ `
   mutation CartCreate($lines: [CartLineInput!]!) {
@@ -203,4 +234,114 @@ export async function fetchProductVariantAvailabilityByHandle(
   });
 
   return availabilityMap;
+}
+
+// ── Fetch all products ─────────────────────────────────────────
+
+const FETCH_ALL_PRODUCTS_QUERY = /* GraphQL */ `
+  query FetchAllProducts($first: Int!) {
+    products(first: $first) {
+      edges {
+        node {
+          id
+          title
+          handle
+          description
+          images(first: 10) {
+            edges {
+              node {
+                url
+                altText
+              }
+            }
+          }
+          variants(first: 100) {
+            edges {
+              node {
+                id
+                title
+                availableForSale
+                quantityAvailable
+                price {
+                  amount
+                  currencyCode
+                }
+                selectedOptions {
+                  name
+                  value
+                }
+              }
+            }
+          }
+          priceRange {
+            minVariantPrice {
+              amount
+              currencyCode
+            }
+            maxVariantPrice {
+              amount
+              currencyCode
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function fetchProducts(first = 50): Promise<ShopifyProduct[]> {
+  const config = assertShopifyConfig();
+
+  const response = await fetch(
+    `https://${config.domain}/api/${config.version}/graphql.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': config.token,
+      },
+      body: JSON.stringify({
+        query: FETCH_ALL_PRODUCTS_QUERY,
+        variables: { first },
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result?.errors?.[0]?.message ?? 'Unable to fetch products from Shopify.');
+  }
+
+  const edges: Array<{ node: Record<string, unknown> }> =
+    result?.data?.products?.edges ?? [];
+
+  return edges.map((edge): ShopifyProduct => {
+    const node = edge.node as Record<string, unknown>;
+
+    const imageEdges = ((node.images as Record<string, unknown>)?.edges ?? []) as Array<{
+      node: { url: string; altText: string | null };
+    }>;
+
+    const variantEdges = ((node.variants as Record<string, unknown>)?.edges ?? []) as Array<{
+      node: {
+        id: string;
+        title: string;
+        availableForSale: boolean;
+        quantityAvailable: number | null;
+        price: { amount: string; currencyCode: string };
+        selectedOptions: { name: string; value: string }[];
+      };
+    }>;
+
+    return {
+      id: node.id as string,
+      title: node.title as string,
+      handle: node.handle as string,
+      description: (node.description as string) ?? '',
+      images: imageEdges.map((e) => e.node),
+      variants: variantEdges.map((e) => e.node),
+      priceRange: node.priceRange as ShopifyProduct['priceRange'],
+    };
+  });
 }

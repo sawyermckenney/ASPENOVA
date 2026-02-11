@@ -1,11 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ShoppingBag, X, Plus, Minus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner@2.0.3';
 import { useCart } from '../contexts/CartContext';
-import { Button } from './ui/button';
 import { createShopifyCheckout } from '../lib/shopify';
-import { scrollToSection } from '../lib/utils';
+import { useVariantAvailability } from '../hooks/useVariantAvailability';
+import { navigate } from '../hooks/useRoute';
 import { ecommerce } from '../lib/analytics';
 
 export function CartSidebar() {
@@ -21,9 +20,23 @@ export function CartSidebar() {
   } = useCart();
   const [isProcessingCheckout, setIsProcessingCheckout] = useState(false);
 
-  const handleShopClick = () => {
-    closeCart();
-    scrollToSection('shop');
+  // Fetch availability for all variant IDs currently in the cart
+  const variantIds = useMemo(
+    () => items.map((item) => item.shopifyVariantId).filter(Boolean) as string[],
+    [items]
+  );
+  const availabilityMap = useVariantAvailability(variantIds);
+
+  const handleIncrement = (itemId: string, currentQty: number, shopifyVariantId?: string) => {
+    if (shopifyVariantId) {
+      const availability = availabilityMap[shopifyVariantId];
+      const maxQty = availability?.quantityAvailable;
+      if (typeof maxQty === 'number' && currentQty >= maxQty) {
+        toast.info(`Only ${maxQty} available.`);
+        return;
+      }
+    }
+    updateQuantity(itemId, currentQty + 1);
   };
 
   const handleCheckout = async () => {
@@ -34,198 +47,181 @@ export function CartSidebar() {
 
     try {
       setIsProcessingCheckout(true);
-      
-      // Track analytics before checkout
       ecommerce.beginCheckout(items, totalPrice);
-      
       const checkoutUrl = await createShopifyCheckout(items);
-      toast.success('Redirecting to checkout…');
+      toast.success('Redirecting to checkout...');
       clearCart();
       window.location.assign(checkoutUrl);
     } catch (error) {
       const message =
         error instanceof Error ? error.message : 'Unable to start checkout. Please try again.';
       toast.error(message);
-      console.error('[Checkout] Failed to create Shopify checkout', error);
     } finally {
       setIsProcessingCheckout(false);
     }
+  };
+
+  const handleContinueShopping = () => {
+    closeCart();
+    navigate('/shop');
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
             onClick={closeCart}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-40 bg-black/40"
           />
 
+          {/* Drawer */}
           <motion.div
             initial={{ x: '100%' }}
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 z-50 flex h-full w-full flex-col bg-white shadow-2xl sm:w-[450px]"
+            className="fixed right-0 top-0 z-50 flex h-full w-full flex-col bg-white sm:w-[420px]"
           >
-            <div className="flex items-center justify-between border-b border-zinc-200 p-6">
-              <div className="flex items-center gap-3">
-                <ShoppingBag className="h-5 w-5" aria-hidden="true" />
-                <h2 className="tracking-wider text-black">
-                  CART {totalItems > 0 && `(${totalItems})`}
-                </h2>
-              </div>
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-neutral-200 px-6 py-5">
+              <h2 className="text-[11px] tracking-[0.3em] uppercase">
+                Cart {totalItems > 0 && `(${totalItems})`}
+              </h2>
               <button
                 onClick={closeCart}
-                className="rounded-full p-2 transition-colors hover:bg-zinc-100"
+                className="text-neutral-400 hover:text-black transition-colors"
                 aria-label="Close cart"
               >
-                <X className="h-5 w-5" />
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-6">
+            {/* Items */}
+            <div className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide">
               {items.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center text-center">
-                  <ShoppingBag className="mb-4 h-16 w-16 text-zinc-300" aria-hidden="true" />
-                  <p className="mb-2 text-zinc-500">Your cart is empty</p>
-                  <p className="text-sm text-zinc-400">Add items to get started</p>
-                  <Button
-                    onClick={handleShopClick}
-                    className="mt-6 rounded-full border border-black bg-black px-6 py-3 text-xs font-semibold uppercase tracking-[0.3em] text-white shadow transition hover:bg-black/90"
+                  <p className="text-neutral-400 text-sm">Your cart is empty</p>
+                  <button
+                    onClick={handleContinueShopping}
+                    className="mt-6 px-6 py-3 border border-black text-[11px] tracking-[0.2em] uppercase text-black hover:bg-black hover:text-white transition-colors"
                   >
-                    Shop the Drop
-                  </Button>
+                    Continue Shopping
+                  </button>
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {items.map((item) => (
-                    <motion.div
-                      key={item.id}
-                      layout
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, x: 100 }}
-                      className="flex gap-4 border-b border-zinc-100 pb-6"
-                    >
-                      <div className="h-16 w-16 sm:h-20 sm:w-20 flex-shrink-0 overflow-hidden rounded-lg bg-zinc-50">
-                        <img src={item.image} alt={item.name} className="h-full w-full object-cover" />
-                      </div>
+                  {items.map((item) => {
+                    const availability = item.shopifyVariantId
+                      ? availabilityMap[item.shopifyVariantId]
+                      : undefined;
+                    const maxQty = availability?.quantityAvailable;
+                    const atMax = typeof maxQty === 'number' && item.quantity >= maxQty;
 
-                      <div className="flex flex-1 flex-col justify-between">
-                        <div>
-                          <h3 className="mb-1 tracking-wide text-black">{item.name}</h3>
-                          {item.variant && (
-                            <p className="text-xs text-zinc-500 tracking-wider">{item.variant}</p>
-                          )}
-                          <p className="mt-1 text-sm text-zinc-600">${item.price.toFixed(2)}</p>
+                    return (
+                      <div key={item.id} className="flex gap-4 pb-6 border-b border-neutral-100">
+                        {/* Thumbnail */}
+                        <div className="w-20 h-24 flex-shrink-0 bg-neutral-100 overflow-hidden">
+                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
                         </div>
 
-                        <div className="mt-3 flex items-center justify-between">
-                          <div className="flex items-center gap-1 rounded-full border border-zinc-200 bg-zinc-100/80 px-1">
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-white hover:text-black"
-                              aria-label="Decrease quantity"
-                            >
-                              <Minus className="h-3.5 w-3.5" />
-                            </button>
-                            <span className="w-10 text-center text-sm font-semibold text-zinc-800">
-                              {item.quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                              className="flex h-8 w-8 items-center justify-center rounded-full text-zinc-600 transition-colors hover:bg-white hover:text-black"
-                              aria-label="Increase quantity"
-                            >
-                              <Plus className="h-3.5 w-3.5" />
-                            </button>
+                        {/* Details */}
+                        <div className="flex-1 flex flex-col justify-between min-w-0">
+                          <div>
+                            <h3 className="text-[13px] tracking-wide text-black truncate">
+                              {item.name}
+                            </h3>
+                            {item.variant && (
+                              <p className="text-[11px] text-neutral-400 mt-0.5">{item.variant}</p>
+                            )}
+                            <p className="text-[13px] text-neutral-500 mt-1">${item.price.toFixed(2)}</p>
                           </div>
 
-                          <button
-                            onClick={() => {
-                              removeItem(item.id);
-                              toast.success('Item removed from cart');
-                            }}
-                            className="group rounded-full p-2 transition-colors hover:bg-red-50"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="h-4 w-4 text-zinc-400 transition-colors group-hover:text-red-500" />
-                          </button>
+                          <div className="flex items-center justify-between mt-3">
+                            {/* Quantity */}
+                            <div className="flex items-center border border-neutral-200">
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-black transition-colors"
+                                aria-label="Decrease quantity"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                                  <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                              </button>
+                              <span className="w-8 text-center text-[12px] text-black">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => handleIncrement(item.id, item.quantity, item.shopifyVariantId)}
+                                disabled={atMax}
+                                className="w-8 h-8 flex items-center justify-center text-neutral-400 hover:text-black disabled:text-neutral-200 disabled:cursor-not-allowed transition-colors"
+                                aria-label="Increase quantity"
+                              >
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                                  <line x1="12" y1="5" x2="12" y2="19" />
+                                  <line x1="5" y1="12" x2="19" y2="12" />
+                                </svg>
+                              </button>
+                            </div>
+
+                            {/* Remove */}
+                            <button
+                              onClick={() => {
+                                removeItem(item.id);
+                                toast.success('Removed from cart');
+                              }}
+                              className="text-neutral-300 hover:text-black transition-colors"
+                              aria-label="Remove item"
+                            >
+                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
                       </div>
-                    </motion.div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
 
+            {/* Footer */}
             {items.length > 0 && (
-              <div className="space-y-4 border-t border-zinc-200 bg-zinc-50 p-6">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-600">Subtotal</span>
-                  <span className="text-zinc-900">${totalPrice.toFixed(2)}</span>
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-zinc-600">Shipping</span>
-                  <span className="text-zinc-900">
-                    {totalPrice >= 75 ? 'FREE' : 'Calculated at checkout'}
-                  </span>
-                </div>
-
-                <div className="h-px bg-zinc-300" />
-
+              <div className="border-t border-neutral-200 px-6 py-6 space-y-4">
                 <div className="flex items-center justify-between">
-                  <span className="tracking-wider text-black">TOTAL</span>
-                  <span className="tracking-wide text-black">${totalPrice.toFixed(2)}</span>
+                  <span className="text-[11px] tracking-[0.2em] uppercase text-neutral-400">
+                    Subtotal
+                  </span>
+                  <span className="text-sm text-black">${totalPrice.toFixed(2)}</span>
                 </div>
 
-                <Button
+                <p className="text-[11px] text-neutral-400">
+                  Shipping calculated at checkout
+                </p>
+
+                <button
                   onClick={handleCheckout}
                   disabled={isProcessingCheckout}
-                  className="w-full py-6 bg-black text-white hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-black/40 tracking-widest transition-all duration-300"
+                  className="w-full py-4 bg-black text-white text-[11px] tracking-[0.25em] uppercase hover:bg-neutral-800 disabled:bg-neutral-200 disabled:text-neutral-400 disabled:cursor-not-allowed transition-colors"
                 >
-                  {isProcessingCheckout ? 'REDIRECTING…' : 'CHECKOUT'}
-                </Button>
+                  {isProcessingCheckout ? 'Redirecting...' : 'Checkout'}
+                </button>
               </div>
             )}
           </motion.div>
         </>
       )}
     </AnimatePresence>
-  );
-}
-
-export function CartToggle() {
-  const { openCart, totalItems } = useCart();
-
-  return (
-    <motion.button
-      onClick={openCart}
-      className="fixed top-24 right-6 z-40 rounded-full bg-black p-4 text-white shadow-lg transition-all duration-300 hover:bg-zinc-800 group"
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-      aria-label="Open cart"
-    >
-      <div className="relative">
-        <ShoppingBag className="h-6 w-6 transition-transform duration-300 group-hover:scale-110" aria-hidden="true" />
-        <AnimatePresence>
-          {totalItems > 0 && (
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0 }}
-              className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full border-2 border-black bg-white text-xs text-black"
-            >
-              {totalItems}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </motion.button>
   );
 }
