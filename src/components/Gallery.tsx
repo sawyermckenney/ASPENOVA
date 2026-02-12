@@ -1,15 +1,15 @@
-import img1 from './images/gallery/_PBJ2824.JPEG';
-import img2 from './images/gallery/_PBJ2867.JPEG';
-import img3 from './images/gallery/_PBJ2900.JPEG';
-import img4 from './images/gallery/FullSizeRender-preview.JPG';
-import img5 from './images/gallery/IMG_4945.jpeg';
-import img7 from './images/gallery/IMG_0492.jpeg';
-import img8 from './images/gallery/IMG_0554.jpeg';
-import img9 from './images/gallery/IMG_0570.jpeg';
-import img10 from './images/gallery/IMG_0573.jpeg';
-import img11 from './images/gallery/IMG_0987.jpeg';
-import img12 from './images/gallery/IMG_1050.jpeg';
-import img13 from './images/gallery/IMG_0494.jpeg';
+import img1 from './images/gallery/_PBJ2824.webp';
+import img2 from './images/gallery/_PBJ2867.webp';
+import img3 from './images/gallery/_PBJ2900.webp';
+import img4 from './images/gallery/FullSizeRender-preview.webp';
+import img5 from './images/gallery/IMG_4945.webp';
+import img7 from './images/gallery/IMG_0492.webp';
+import img8 from './images/gallery/IMG_0554.webp';
+import img9 from './images/gallery/IMG_0570.webp';
+import img10 from './images/gallery/IMG_0573.webp';
+import img11 from './images/gallery/IMG_0987.webp';
+import img12 from './images/gallery/IMG_1050.webp';
+import img13 from './images/gallery/IMG_0494.webp';
 
 const images: { src: string; alt: string }[] = [
   { src: img1, alt: 'Aspenova lookbook' },
