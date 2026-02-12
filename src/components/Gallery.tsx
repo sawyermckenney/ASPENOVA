@@ -9,6 +9,7 @@ import img9 from './images/gallery/IMG_0570.jpeg';
 import img10 from './images/gallery/IMG_0573.jpeg';
 import img11 from './images/gallery/IMG_0987.jpeg';
 import img12 from './images/gallery/IMG_1050.jpeg';
+import img13 from './images/gallery/IMG_0494.jpeg';
 
 const images: { src: string; alt: string }[] = [
   { src: img1, alt: 'Aspenova lookbook' },
@@ -22,6 +23,7 @@ const images: { src: string; alt: string }[] = [
   { src: img10, alt: 'Aspenova lookbook' },
   { src: img11, alt: 'Aspenova lookbook' },
   { src: img12, alt: 'Aspenova lookbook' },
+  { src: img13, alt: 'Aspenova lookbook' },
 ];
 
 function shuffle<T>(array: T[]): T[] {
