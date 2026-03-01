@@ -8,32 +8,33 @@ export type Route =
   | { page: 'policies' }
   | { page: 'product'; handle: string };
 
-function parseHash(hash: string): Route {
-  const path = hash.replace('#', '') || '/';
-  if (path === '/' || path === '') return { page: 'home' };
-  if (path === '/shop') return { page: 'shop' };
-  if (path === '/about') return { page: 'about' };
-  if (path === '/gallery') return { page: 'gallery' };
-  if (path === '/policies') return { page: 'policies' };
-  const productMatch = path.match(/^\/product\/(.+)$/);
+function parsePath(path: string): Route {
+  const clean = path || '/';
+  if (clean === '/') return { page: 'home' };
+  if (clean === '/shop') return { page: 'shop' };
+  if (clean === '/about') return { page: 'about' };
+  if (clean === '/gallery') return { page: 'gallery' };
+  if (clean === '/policies') return { page: 'policies' };
+  const productMatch = clean.match(/^\/product\/(.+)$/);
   if (productMatch) return { page: 'product', handle: productMatch[1] };
   return { page: 'home' };
 }
 
 export function useRoute(): Route {
-  const [route, setRoute] = useState<Route>(() => parseHash(window.location.hash));
+  const [route, setRoute] = useState<Route>(() => parsePath(window.location.pathname));
 
   useEffect(() => {
-    const onHashChange = () => setRoute(parseHash(window.location.hash));
-    window.addEventListener('hashchange', onHashChange);
-    return () => window.removeEventListener('hashchange', onHashChange);
+    const onPopState = () => setRoute(parsePath(window.location.pathname));
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
   }, []);
 
   return route;
 }
 
 export function navigate(path: string) {
-  window.location.hash = path;
+  window.history.pushState(null, '', path);
+  window.dispatchEvent(new PopStateEvent('popstate'));
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 

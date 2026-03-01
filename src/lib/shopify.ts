@@ -236,6 +236,66 @@ export async function fetchProductVariantAvailabilityByHandle(
   return availabilityMap;
 }
 
+// ── Newsletter signup (customer create) ────────────────────────
+
+const CUSTOMER_CREATE_MUTATION = /* GraphQL */ `
+  mutation CustomerCreate($input: CustomerCreateInput!) {
+    customerCreate(input: $input) {
+      customer {
+        id
+        email
+      }
+      customerUserErrors {
+        field
+        message
+        code
+      }
+    }
+  }
+`;
+
+export async function subscribeNewsletter(email: string): Promise<void> {
+  const config = assertShopifyConfig();
+
+  const response = await fetch(
+    `https://${config.domain}/api/${config.version}/graphql.json`,
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': config.token,
+      },
+      body: JSON.stringify({
+        query: CUSTOMER_CREATE_MUTATION,
+        variables: {
+          input: {
+            email,
+            password: crypto.randomUUID(),
+            acceptsMarketing: true,
+          },
+        },
+      }),
+    }
+  );
+
+  const result = await response.json();
+
+  if (!response.ok) {
+    throw new Error(result?.errors?.[0]?.message ?? 'Unable to reach Shopify.');
+  }
+
+  const userErrors: Array<{ message: string; code: string }> | undefined =
+    result?.data?.customerCreate?.customerUserErrors;
+
+  if (userErrors && userErrors.length > 0) {
+    // "TAKEN" means already subscribed — treat as success
+    if (userErrors.every((e) => e.code === 'TAKEN')) {
+      return;
+    }
+    throw new Error(userErrors.map((e) => e.message).join(', '));
+  }
+}
+
 // ── Fetch all products ─────────────────────────────────────────
 
 const FETCH_ALL_PRODUCTS_QUERY = /* GraphQL */ `

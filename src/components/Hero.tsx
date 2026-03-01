@@ -1,5 +1,6 @@
 import { navigate } from '../hooks/useRoute';
 import { useProducts } from '../hooks/useProducts';
+import heroImage from '../components/images/hero.jpeg';
 
 export function Hero() {
   const { products, isLoading } = useProducts();
@@ -7,28 +8,42 @@ export function Hero() {
 
   return (
     <>
-      {/* Hero Section */}
-      <section className="pt-16">
-        <div className="flex flex-col items-center justify-center min-h-[85vh] px-6 text-center">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl tracking-[0.25em] font-light text-black uppercase">
-            ASPENOVA CLUB
+      {/* Hero Section - full viewport width */}
+      <section className="relative h-screen w-full overflow-hidden">
+        {/* Full-bleed hero image */}
+        <img src={heroImage} alt="Aspenova Club" className="absolute inset-0 w-full h-full object-cover" />
+
+        {/* Bottom gradient for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+
+        {/* Text overlay - bottom left */}
+        <div className="absolute bottom-10 left-6 md:bottom-16 md:left-16 right-6 md:right-16">
+          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-[0.9] mb-8">
+            Elevating
+            <br />
+            Perspective
           </h1>
-          <div className="w-12 h-px bg-neutral-300 my-8" />
-          <p className="text-[13px] tracking-[0.2em] text-neutral-400 uppercase font-light">
-            Elevating Perspective
-          </p>
-          <button
-            onClick={() => navigate('/shop')}
-            className="mt-16 px-10 py-3.5 border border-black text-[11px] tracking-[0.25em] uppercase text-black hover:bg-black hover:text-white transition-colors duration-300"
-          >
-            Shop Now
-          </button>
+
+          <div className="flex items-end justify-between">
+            <button
+              onClick={() => navigate('/shop')}
+              className="bg-white/10 backdrop-blur-sm text-white px-6 py-3 md:px-8 md:py-4 border border-white/20 hover:bg-white/20 transition-colors"
+            >
+              <span className="text-[11px] md:text-[12px] tracking-[0.2em] uppercase">
+                Shop Now
+              </span>
+            </button>
+
+            <p className="text-[11px] md:text-[12px] tracking-[0.15em] uppercase text-white/60">
+              Aspenova Club
+            </p>
+          </div>
         </div>
       </section>
 
       {/* Featured Products */}
       {!isLoading && featured.length > 0 && (
-        <section className="px-6 pb-24">
+        <section className="px-6 pb-24 pt-16">
           <div className="max-w-[1400px] mx-auto">
             <div className="flex items-center gap-6 mb-12">
               <h2 className="text-[11px] tracking-[0.3em] uppercase text-neutral-400">
